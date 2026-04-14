@@ -1,16 +1,10 @@
-import os
 from dash import html
 from glassdash.theme import GlassTheme
 
 
-def GlassDashboard(
-    title="Dashboard", date_range=None, theme=None, children=None, **kwargs
-):
+def GlassDashboard(title="Dashboard", date_range=None, theme=None, children=None, **kwargs):
     if theme is None:
         theme = GlassTheme()
-
-    pkg_dir = os.path.dirname(__file__)
-    css_path = os.path.join(pkg_dir, "assets", "glass.css")
 
     header = html.Div(
         [
