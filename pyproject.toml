@@ -1,0 +1,39 @@
+[project]
+name = "glassdash"
+version = "0.1.0"
+description = "Beautiful glassmorphism dashboards for Plotly Dash + Polars"
+
+requires-python = ">=3.10"
+dependencies = [
+    "dash>=2.0",
+    "polars>=0.19",
+    "plotly>=5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pytest",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["glassdash"]
+
+[tool.hatch.build.targets.wheel.data]
+include = ["glassdash/assets"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
