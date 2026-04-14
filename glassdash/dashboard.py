@@ -45,3 +45,21 @@ def GlassDashboard(title="Dashboard", date_range=None, theme=None, children=None
         ],
         **kwargs,
     )
+
+
+def Section(title: str, description: str = None, children=None, theme=None, **kwargs) -> html.Div:
+    theme = theme or GlassTheme()
+
+    header = html.Div(
+        [
+            html.H2(title, className="glass-section-title"),
+            html.P(description, className="glass-section-description") if description else None,
+        ],
+        className="glass-section-header",
+    )
+
+    return html.Div(
+        [header, html.Div(children, className="glass-section-children")],
+        className="glass-section",
+        **kwargs,
+    )

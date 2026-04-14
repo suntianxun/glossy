@@ -1,7 +1,7 @@
 """Demo dashboard showcasing all GlassDash components."""
 
 from dash import Dash, html
-from glassdash import GlassDashboard, GlassTheme, KPICard
+from glassdash import GlassDashboard, GlassTheme, Section, KPICard
 from glassdash.components import (
     LineChart,
     AreaChart,
@@ -95,8 +95,10 @@ def create_demo_app():
                     "marginBottom": "20px",
                 },
             ),
-            html.Div(
-                [
+            Section(
+                "FTE Trends",
+                "Full-time equivalent over time",
+                children=[
                     AreaChart(df, x="month", y="fte", theme=theme),
                     MultiLinesChart(
                         df,
@@ -105,67 +107,85 @@ def create_demo_app():
                         theme=theme,
                     ),
                 ],
-                style={
-                    "display": "grid",
-                    "gridTemplateColumns": "1fr 1fr",
-                    "gap": "20px",
-                    "marginBottom": "20px",
-                },
             ),
-            MultiBarsChart(
-                df,
-                x="month",
-                bars={"Squad A": "squad_a", "Squad B": "squad_b", "Squad C": "squad_c"},
-                theme=theme,
-                highlight_current=False,
+            Section(
+                "Squad Performance",
+                "Team composition by squad",
+                children=[
+                    MultiBarsChart(
+                        df,
+                        x="month",
+                        bars={"Squad A": "squad_a", "Squad B": "squad_b", "Squad C": "squad_c"},
+                        theme=theme,
+                        highlight_current=False,
+                    ),
+                    BarChart(df, x="month", y="squads", theme=theme),
+                ],
             ),
-            StackedBarChart(
-                df,
-                x="month",
-                segments={
-                    "Full-time": "fte_ft",
-                    "Part-time": "fte_pt",
-                    "Contingent": "fte_cont",
-                    "Others": "fte_other",
-                },
-                theme=theme,
+            Section(
+                "Labor Mix",
+                "Breakdown by employment type",
+                children=[
+                    StackedBarChart(
+                        df,
+                        x="month",
+                        segments={
+                            "Full-time": "fte_ft",
+                            "Part-time": "fte_pt",
+                            "Contingent": "fte_cont",
+                            "Others": "fte_other",
+                        },
+                        theme=theme,
+                    ),
+                    StackedBarWithLine(
+                        df,
+                        x="month",
+                        bar_segments={
+                            "Full-time": "fte_ft",
+                            "Part-time": "fte_pt",
+                            "Contingent": "fte_cont",
+                        },
+                        line_y="total_fte",
+                        theme=theme,
+                    ),
+                    StackedBarWithBreakdown(
+                        df,
+                        x="month",
+                        bar_segments={
+                            "Full-time": "fte_ft",
+                            "Part-time": "fte_pt",
+                            "Contingent": "fte_cont",
+                            "Others": "fte_other",
+                        },
+                        breakdown={
+                            "Full-time": {
+                                "Analyst": 0.3,
+                                "Engineer": 0.4,
+                                "Sales": 0.2,
+                                "Others": 0.1,
+                            },
+                            "Part-time": {"Morning": 0.5, "Afternoon": 0.5},
+                            "Contingent": {"Contractor": 0.6, "Temp": 0.4},
+                            "Others": {"External": 0.7, "Internal": 0.3},
+                        },
+                        theme=theme,
+                    ),
+                ],
             ),
-            StackedBarWithLine(
-                df,
-                x="month",
-                bar_segments={
-                    "Full-time": "fte_ft",
-                    "Part-time": "fte_pt",
-                    "Contingent": "fte_cont",
-                },
-                line_y="total_fte",
-                theme=theme,
+            Section(
+                "Efficiency Metrics",
+                "Efficiency and efficacy over time",
+                children=[
+                    DualAreaChart(df, x="month", y1="efficiency", y2="efficacy", theme=theme),
+                ],
             ),
-            StackedBarWithBreakdown(
-                df,
-                x="month",
-                bar_segments={
-                    "Full-time": "fte_ft",
-                    "Part-time": "fte_pt",
-                    "Contingent": "fte_cont",
-                    "Others": "fte_other",
-                },
-                breakdown={
-                    "Full-time": {
-                        "Analyst": 0.3,
-                        "Engineer": 0.4,
-                        "Sales": 0.2,
-                        "Others": 0.1,
-                    },
-                    "Part-time": {"Morning": 0.5, "Afternoon": 0.5},
-                    "Contingent": {"Contractor": 0.6, "Temp": 0.4},
-                    "Others": {"External": 0.7, "Internal": 0.3},
-                },
-                theme=theme,
+            Section(
+                "Yield Gauge",
+                "Current yield performance",
+                children=[
+                    RadialGauge(value=61, max_value=100, label="Yield", theme=theme),
+                ],
             ),
-            BarChart(df, x="month", y="squads", theme=theme),
-            DualAreaChart(df, x="month", y1="efficiency", y2="efficacy", theme=theme),
-            RadialGauge(value=61, max_value=100, label="Yield", theme=theme),
         ],
     )
 

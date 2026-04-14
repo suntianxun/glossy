@@ -8,6 +8,7 @@ dependencies = [
     "dash>=2.0",
     "polars>=0.19",
     "plotly>=5.0",
+    "pandera>=0.19",
 ]
 
 [project.optional-dependencies]

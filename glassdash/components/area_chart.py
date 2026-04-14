@@ -4,6 +4,7 @@ import polars as pl
 from dash import html, dcc, callback, Input, Output
 from plotly import graph_objects as go
 from glassdash.theme import GlassTheme
+from glassdash.components._base import _with_validation
 
 
 def hex_to_rgb(hex_color):
@@ -11,6 +12,7 @@ def hex_to_rgb(hex_color):
     return f"rgb({int(h[0:2], 16)},{int(h[2:4], 16)},{int(h[4:6], 16)})"
 
 
+@_with_validation
 def AreaChart(
     dataframe,
     x="month",
@@ -52,9 +54,7 @@ def AreaChart(
                     dcc.Input(
                         id=f"{chart_id}-start-date",
                         type="text",
-                        value=x_dates_all[0].strftime("%Y-%m-%d")
-                        if x_dates_all
-                        else "",
+                        value=x_dates_all[0].strftime("%Y-%m-%d") if x_dates_all else "",
                         placeholder="YYYY-MM-DD",
                         style={
                             "background": "rgba(255,255,255,0.1)",
@@ -78,9 +78,7 @@ def AreaChart(
                     dcc.Input(
                         id=f"{chart_id}-end-date",
                         type="text",
-                        value=x_dates_all[-1].strftime("%Y-%m-%d")
-                        if x_dates_all
-                        else "",
+                        value=x_dates_all[-1].strftime("%Y-%m-%d") if x_dates_all else "",
                         placeholder="YYYY-MM-DD",
                         style={
                             "background": "rgba(255,255,255,0.1)",
@@ -155,9 +153,7 @@ def AreaChart(
         if start_date:
             try:
                 if isinstance(start_date, str):
-                    start_date = datetime.datetime.strptime(
-                        start_date, "%Y-%m-%d"
-                    ).date()
+                    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
                 filtered_dates = [d for d in filtered_dates if d >= start_date]
             except (ValueError, TypeError):
                 pass

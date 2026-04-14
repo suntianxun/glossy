@@ -1,7 +1,7 @@
 """GlassDash - Beautiful glassmorphism dashboards for Plotly Dash + Polars."""
 
 from glassdash.theme import GlassTheme
-from glassdash.dashboard import GlassDashboard
+from glassdash.dashboard import GlassDashboard, Section
 from glassdash.components import (
     GlassCard,
     KPICard,
@@ -20,6 +20,7 @@ from glassdash.components import (
 __all__ = [
     "GlassTheme",
     "GlassDashboard",
+    "Section",
     "GlassCard",
     "KPICard",
     "LineChart",
