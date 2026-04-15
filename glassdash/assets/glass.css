@@ -76,15 +76,8 @@ body {
     margin: 0;
 }
 .glass-section-children {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 20px;
-    height: 100%;
-}
-
-.glass-section-children > * {
-    flex: 1;
-    min-height: 0;
 }
 .glass-section-divider {
     height: 1px;
