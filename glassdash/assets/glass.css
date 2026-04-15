@@ -34,7 +34,8 @@ body {
     margin-bottom: 10px;
     position: relative;
     z-index: 100;
-    flex-shrink: 0;
+    flex-shrink: 1;
+    min-height: 0;
 }
 .glass-chart-container {
     position: relative;
