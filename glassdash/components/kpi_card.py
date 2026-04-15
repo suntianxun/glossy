@@ -1,6 +1,7 @@
 """KPICard - key metric display with trend."""
 
 from dash import html
+
 from glassdash.theme import GlassTheme
 
 

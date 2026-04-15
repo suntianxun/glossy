@@ -1,7 +1,8 @@
 """RadialGauge - arc/gauge visualization."""
 
-from dash import html, dcc
+from dash import dcc, html
 from plotly import graph_objects as go
+
 from glassdash.theme import GlassTheme
 
 

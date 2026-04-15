@@ -1,21 +1,21 @@
 """GlassDash - Beautiful glassmorphism dashboards for Plotly Dash + Polars."""
 
-from glassdash.theme import GlassTheme
-from glassdash.dashboard import GlassDashboard, Section
 from glassdash.components import (
+    AreaChart,
+    BarChart,
+    DualAreaChart,
     GlassCard,
     KPICard,
     LineChart,
-    AreaChart,
-    MultiLinesChart,
     MultiBarsChart,
-    StackedBarChart,
-    StackedBarWithLine,
-    StackedBarWithBreakdown,
-    BarChart,
-    DualAreaChart,
+    MultiLinesChart,
     RadialGauge,
+    StackedBarChart,
+    StackedBarWithBreakdown,
+    StackedBarWithLine,
 )
+from glassdash.dashboard import GlassDashboard, Section
+from glassdash.theme import GlassTheme
 
 __all__ = [
     "GlassTheme",

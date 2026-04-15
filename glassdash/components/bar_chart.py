@@ -1,10 +1,11 @@
 import datetime
 import uuid
-import polars as pl
-from dash import html, dcc, callback, Input, Output
+
+from dash import Input, Output, callback, dcc, html
 from plotly import graph_objects as go
-from glassdash.theme import GlassTheme
+
 from glassdash.components._base import _with_validation
+from glassdash.theme import GlassTheme
 
 
 @_with_validation

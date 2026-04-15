@@ -1,20 +1,20 @@
 """Demo dashboard showcasing all GlassDash components."""
 
+import polars as pl
 from dash import Dash, html
-from glassdash import GlassDashboard, GlassTheme, Section, KPICard
+
+from glassdash import GlassDashboard, GlassTheme, KPICard, Section
 from glassdash.components import (
-    LineChart,
     AreaChart,
-    MultiLinesChart,
-    MultiBarsChart,
-    StackedBarChart,
-    StackedBarWithLine,
-    StackedBarWithBreakdown,
     BarChart,
     DualAreaChart,
+    MultiBarsChart,
+    MultiLinesChart,
     RadialGauge,
+    StackedBarChart,
+    StackedBarWithBreakdown,
+    StackedBarWithLine,
 )
-import polars as pl
 
 
 def create_demo_app():

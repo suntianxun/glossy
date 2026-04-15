@@ -1,6 +1,7 @@
 """GlassCard - frosted glass container component."""
 
 from dash import html
+
 from glassdash.theme import GlassTheme
 
 

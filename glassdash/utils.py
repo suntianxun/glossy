@@ -1,8 +1,8 @@
 """Utility functions for working with Polars DataFrames."""
 
-import polars as pl
 from datetime import datetime
-import calendar
+
+import polars as pl
 
 
 def get_last_n_months(n: int = 12) -> pl.DataFrame:
