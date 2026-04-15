@@ -81,19 +81,21 @@ def create_demo_app():
         date_range=("2024-07-01", "2025-06-13"),
         theme=theme,
         children=[
-            html.Div(
-                [
-                    KPICard(title="FTE", value=24.5, trend=2.3, theme=theme),
-                    KPICard(title="Efficiency", value="87.2%", trend=1.8, theme=theme),
-                    KPICard(title="Efficacy", value="92.8%", trend=-0.5, theme=theme),
-                    KPICard(title="Yield", value="4.2%", trend=0.3, theme=theme),
+            Section(
+                "Key Metrics",
+                "Current period performance",
+                children=[
+                    html.Div(
+                        [
+                            KPICard(title="FTE", value=24.5, trend=2.3, theme=theme),
+                            KPICard(title="Efficiency", value="87.2%", trend=1.8, theme=theme),
+                            KPICard(title="Efficacy", value="92.8%", trend=-0.5, theme=theme),
+                            KPICard(title="Yield", value="4.2%", trend=0.3, theme=theme),
+                        ],
+                        className="glass-kpi-grid",
+                    ),
                 ],
-                style={
-                    "display": "grid",
-                    "gridTemplateColumns": "repeat(4, 1fr)",
-                    "gap": "16px",
-                    "marginBottom": "20px",
-                },
+                className="glass-section-full",
             ),
             Section(
                 "FTE Trends",

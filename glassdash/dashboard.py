@@ -32,7 +32,7 @@ def GlassDashboard(title="Dashboard", date_range=None, theme=None, children=None
             )
         )
 
-    content = html.Div(children, style={"maxWidth": "1400px", "margin": "0 auto"})
+    content = html.Div(children, className="glass-dashboard-grid")
 
     return html.Div(
         [
@@ -51,16 +51,25 @@ def GlassDashboard(title="Dashboard", date_range=None, theme=None, children=None
 def Section(title: str, description: str = None, children=None, theme=None, **kwargs) -> html.Div:
     theme = theme or GlassTheme()
 
-    header = html.Div(
-        [
-            html.H2(title, className="glass-section-title"),
-            html.P(description, className="glass-section-description") if description else None,
-        ],
-        className="glass-section-header",
-    )
+    existing_class = kwargs.pop("className", "")
+    section_class = "glass-section"
+    if existing_class:
+        section_class = f"{section_class} {existing_class}"
 
     return html.Div(
-        [header, html.Div(children, className="glass-section-children")],
-        className="glass-section",
+        [
+            html.Div(
+                [
+                    html.H2(title, className="glass-section-title"),
+                    html.P(description, className="glass-section-description")
+                    if description
+                    else None,
+                ],
+                className="glass-section-header",
+            ),
+            html.Div(children, className="glass-section-children"),
+            html.Div(className="glass-section-divider"),
+        ],
+        className=section_class,
         **kwargs,
     )
