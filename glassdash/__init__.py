@@ -1,5 +1,6 @@
 """GlassDash - Beautiful glassmorphism dashboards for Plotly Dash + Polars."""
 
+from glassdash._version import __version__
 from glassdash.components import (
     AreaChart,
     BarChart,
