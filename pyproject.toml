@@ -13,6 +13,7 @@ dependencies = [
     "plotly>=5.0",
     "pandera>=0.19",
 ]
+dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
