@@ -27,7 +27,7 @@ def _with_validation(chart_func):
 
             # Map schema keys to actual column names
             column_mapping = {}
-            for key in schema.keys():
+            for key in schema:
                 if key in bound.arguments:
                     val = bound.arguments[key]
                     # Only treat string values as column names

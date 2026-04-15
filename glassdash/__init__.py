@@ -19,6 +19,7 @@ from glassdash.dashboard import GlassDashboard, Section
 from glassdash.theme import GlassTheme
 
 __all__ = [
+    "__version__",
     "GlassTheme",
     "GlassDashboard",
     "Section",

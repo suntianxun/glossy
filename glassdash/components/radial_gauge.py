@@ -30,26 +30,26 @@ def RadialGauge(
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=10, r=10, t=10, b=10),
+        margin={"l": 10, "r": 10, "t": 10, "b": 10},
         annotations=[
-            dict(
-                text=f"{value:.1f}%",
-                x=0.5,
-                y=0.5,
-                font=dict(size=22, color="white", family=theme.fonts["family"]),
-                showarrow=False,
-            ),
-            dict(
-                text=label.upper(),
-                x=0.5,
-                y=0.4,
-                font=dict(
-                    size=10,
-                    color=theme.colors["text_muted"],
-                    family=theme.fonts["family"],
-                ),
-                showarrow=False,
-            ),
+            {
+                "text": f"{value:.1f}%",
+                "x": 0.5,
+                "y": 0.5,
+                "font": {"size": 22, "color": "white", "family": theme.fonts["family"]},
+                "showarrow": False,
+            },
+            {
+                "text": label.upper(),
+                "x": 0.5,
+                "y": 0.4,
+                "font": {
+                    "size": 10,
+                    "color": theme.colors["text_muted"],
+                    "family": theme.fonts["family"],
+                },
+                "showarrow": False,
+            },
         ],
     )
 
