@@ -56,9 +56,6 @@ def RadialGauge(value, max_value=100, label="Value", color="success", theme=None
             className="glass-card",
             style={
                 "padding": "15px",
-                "height": "100%",
-                "min-height": "0",
-                "box-sizing": "border-box",
             },
             children=[dcc.Graph(figure=fig, style={"height": "100%"})],
         ),

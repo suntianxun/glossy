@@ -123,7 +123,7 @@ def DualAreaChart(
         )
     )
 
-    graph = dcc.Graph(id=chart_id, style={"height": "100%", "min-height": "200px"})
+    graph = dcc.Graph(id=chart_id, style={"height": "100%"})
 
     chart_container = html.Div(
         [
@@ -264,7 +264,7 @@ def DualAreaChart(
     return html.Div(
         html.Div(
             className="glass-card",
-            style={"padding": "15px", "height": "100%", "box-sizing": "border-box"},
+            style={"padding": "15px"},
             children=[chart_container],
         ),
         **kwargs,

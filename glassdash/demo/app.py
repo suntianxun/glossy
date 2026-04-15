@@ -84,6 +84,7 @@ def create_demo_app():
             Section(
                 "FTE Trends",
                 "Full-time equivalent over time",
+                height=600,
                 children=[
                     AreaChart(df, x="month", y="fte", theme=theme),
                     MultiLinesChart(
@@ -97,6 +98,7 @@ def create_demo_app():
             Section(
                 "Squad Performance",
                 "Team composition by squad",
+                height=600,
                 children=[
                     MultiBarsChart(
                         df,
@@ -111,6 +113,7 @@ def create_demo_app():
             Section(
                 "Labor Mix",
                 "Breakdown by employment type",
+                height=900,
                 children=[
                     StackedBarChart(
                         df,
@@ -161,6 +164,7 @@ def create_demo_app():
             Section(
                 "Efficiency Metrics",
                 "Efficiency and efficacy over time",
+                height=400,
                 children=[
                     DualAreaChart(df, x="month", y1="efficiency", y2="efficacy", theme=theme),
                 ],
@@ -168,6 +172,7 @@ def create_demo_app():
             Section(
                 "Yield Gauge",
                 "Current yield performance",
+                height=400,
                 children=[
                     RadialGauge(value=61, max_value=100, label="Yield", theme=theme),
                 ],
