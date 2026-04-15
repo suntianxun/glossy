@@ -43,10 +43,12 @@ body {
     min-height: 0;
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 .glass-chart-container > div {
     flex: 1;
     min-height: 0;
+    height: 100%;
 }
 .glass-kpi {
     text-align: center;
@@ -101,9 +103,11 @@ body {
     gap: 20px;
     flex: 1;
     min-height: 0;
+    height: 100%;
 }
 .glass-section-children > * {
     min-height: 0;
+    height: 100%;
 }
 .glass-section-child-wrapper {
     min-height: 0;
