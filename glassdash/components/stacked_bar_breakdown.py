@@ -184,11 +184,19 @@ def StackedBarWithBreakdown(
 
     charts_row = html.Div(
         [
-            html.Div(stacked_graph, style={"flex": "1"}),
+            html.Div(
+                stacked_graph,
+                className="glass-chart-container",
+                style={"flex": "1", "height": "100%"},
+            ),
             divider,
-            html.Div(breakdown_graph, style={"flex": "1"}),
+            html.Div(
+                breakdown_graph,
+                className="glass-chart-container",
+                style={"flex": "1", "height": "100%"},
+            ),
         ],
-        style={"display": "flex", "alignItems": "stretch"},
+        style={"display": "flex", "alignItems": "stretch", "flex": "1"},
     )
 
     chart_container = html.Div(
