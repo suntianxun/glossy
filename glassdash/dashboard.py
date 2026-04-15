@@ -87,6 +87,19 @@ def Section(
     if style:
         kwargs["style"] = {**(kwargs.get("style") or {}), **style}
 
+    child_list = children if isinstance(children, list) else [children]
+    n_children = len(child_list) if child_list else 0
+
+    if height is not None and n_children > 0:
+        children_style = {
+            "display": "grid",
+            "gap": "20px",
+            "gridTemplateRows": f"repeat({n_children}, 1fr)",
+            "height": "100%",
+        }
+    else:
+        children_style = {"display": "grid", "gap": "20px"}
+
     return html.Div(
         [
             html.Div(
@@ -98,7 +111,7 @@ def Section(
                 ],
                 className="glass-section-header",
             ),
-            html.Div(children, className="glass-section-children"),
+            html.Div(children, className="glass-section-children", style=children_style),
             html.Div(className="glass-section-divider"),
         ],
         className=section_class,
