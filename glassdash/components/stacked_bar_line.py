@@ -161,7 +161,7 @@ def StackedBarWithLine(
         )
     )
 
-    graph = dcc.Graph(id=chart_id, style={"height": "250px"})
+    graph = dcc.Graph(id=chart_id, style={"height": "100%"})
 
     chart_container = html.Div(
         [

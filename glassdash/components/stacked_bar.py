@@ -249,7 +249,7 @@ def StackedBarChart(
 
     graph = dcc.Graph(
         id=chart_id,
-        style={"height": "250px"},
+        style={"height": "100%"},
     )
 
     chart_container = html.Div(

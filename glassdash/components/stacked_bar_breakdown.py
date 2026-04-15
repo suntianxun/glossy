@@ -170,8 +170,8 @@ def StackedBarWithBreakdown(
         )
     )
 
-    stacked_graph = dcc.Graph(id=f"{chart_id}-stacked", style={"height": "300px"})
-    breakdown_graph = dcc.Graph(id=f"{chart_id}-breakdown", style={"height": "300px"})
+    stacked_graph = dcc.Graph(id=f"{chart_id}-stacked", style={"height": "100%"})
+    breakdown_graph = dcc.Graph(id=f"{chart_id}-breakdown", style={"height": "100%"})
 
     divider = html.Div(
         style={
@@ -335,7 +335,6 @@ def StackedBarWithBreakdown(
         breakdown_fig = go.Figure()
 
         for date_idx, xd in enumerate(filtered_dates):
-
             cat_value = date_to_cat_value.get(xd, 0)
 
             for blabel, bfrac in zip(breakdown_labels, breakdown_fractions, strict=False):

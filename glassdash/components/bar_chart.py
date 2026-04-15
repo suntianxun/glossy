@@ -112,7 +112,7 @@ def BarChart(
         )
     )
 
-    graph = dcc.Graph(id=chart_id, style={"height": "200px"})
+    graph = dcc.Graph(id=chart_id, style={"height": "100%"})
 
     chart_container = html.Div(
         [
