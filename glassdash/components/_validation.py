@@ -14,16 +14,24 @@ class GlassValidationError(Exception):
         super().__init__(f"{chart_name} validation failed: {errors}")
 
 
+class _Numeric:
+    """Marker type for numeric columns (Int/Float)."""
+
+    pass
+
+
+NUMERIC = _Numeric()
+
 SCHEMAS = {
-    "LineChart": {"x": pl.Utf8, "y": pl.Float64},
-    "AreaChart": {"x": pl.Utf8, "y": pl.Float64},
+    "LineChart": {"x": pl.Utf8, "y": NUMERIC},
+    "AreaChart": {"x": pl.Utf8, "y": NUMERIC},
     "MultiLinesChart": {"x": pl.Utf8},
     "MultiBarsChart": {"x": pl.Utf8},
     "StackedBarChart": {"x": pl.Utf8},
-    "StackedBarWithLine": {"x": pl.Utf8, "line_y": pl.Utf8},
+    "StackedBarWithLine": {"x": pl.Utf8, "line_y": NUMERIC},
     "StackedBarWithBreakdown": {"x": pl.Utf8},
-    "BarChart": {"x": pl.Utf8, "y": pl.Float64},
-    "DualAreaChart": {"x": pl.Utf8, "y1": pl.Float64, "y2": pl.Float64},
+    "BarChart": {"x": pl.Utf8, "y": NUMERIC},
+    "DualAreaChart": {"x": pl.Utf8, "y1": NUMERIC, "y2": NUMERIC},
     "GlassCard": {},
     "KPICard": {},
     "RadialGauge": {},
@@ -33,29 +41,40 @@ SCHEMAS = {
 def validate_dataframe(
     df: pl.DataFrame,
     schema: dict[str, type],
+    column_mapping: dict[str, str] | None = None,
 ) -> tuple[bool, list[str]]:
     """Validate DataFrame against schema. Returns (is_valid, errors)."""
     errors = []
+    column_mapping = column_mapping or {}
 
-    for col, expected_type in schema.items():
-        if col not in df.columns:
-            errors.append(f"'{col}' - missing")
-        elif not _is_compatible_type(df[col].dtype, expected_type):
-            errors.append(f"'{col}' - expected {expected_type.__name__}, got {df[col].dtype}")
+    for key, expected_type in schema.items():
+        actual_col = column_mapping.get(key, key)
+        if actual_col not in df.columns:
+            errors.append(f"'{key}' - missing")
+        elif not _is_compatible_type(df[actual_col].dtype, expected_type):
+            errors.append(
+                f"'{key}' - expected {expected_type.__name__}, got {df[actual_col].dtype}"
+            )
 
     return len(errors) == 0, errors
 
 
 def _is_compatible_type(polars_dtype, expected) -> bool:
-    """Check if Polars dtype is compatible with expected Python type."""
-    dtype_map = {
-        pl.Utf8: str,
-        pl.Float64: float,
-        pl.Int64: int,
-        pl.Int32: int,
-        pl.Boolean: bool,
+    """Check if Polars dtype is compatible with expected type."""
+    if polars_dtype == expected:
+        return True
+    if isinstance(expected, _Numeric):
+        return polars_dtype in {pl.Float64, pl.Float32, pl.Int64, pl.Int32}
+    dtype_aliases = {
+        pl.Utf8: {pl.Utf8, pl.String},
+        pl.String: {pl.Utf8, pl.String},
+        pl.Float64: {pl.Float64, pl.Float32},
+        pl.Float32: {pl.Float64, pl.Float32},
+        pl.Int64: {pl.Int64, pl.Int32},
+        pl.Int32: {pl.Int64, pl.Int32},
     }
-    return dtype_map.get(polars_dtype) == expected
+    compatible_types = dtype_aliases.get(expected, {expected})
+    return polars_dtype in compatible_types
 
 
 def _render_error_card(chart_name: str, errors: list[str], found_columns: list[str]) -> html.Div:
