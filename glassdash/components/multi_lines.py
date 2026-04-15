@@ -213,7 +213,7 @@ def MultiLinesChart(
             color_key = colors.get(label, "accent")
             line_color = theme.colors.get(color_key, theme.colors["accent"])
             y_all = dataframe[col].to_list()
-            date_to_y = dict(zip(x_dates_all, y_all))
+            date_to_y = dict(zip(x_dates_all, y_all, strict=False))
             filtered_y = [date_to_y.get(d, 0) for d in filtered_dates]
 
             fig.add_trace(
@@ -222,7 +222,7 @@ def MultiLinesChart(
                     y=filtered_y,
                     mode="lines",
                     name=label,
-                    line=dict(color=line_color, width=2),
+                    line={"color": line_color, "width": 2},
                     hovertemplate=f"{label}: %{{y:.1f}}<extra></extra>",
                 )
             )
@@ -233,7 +233,7 @@ def MultiLinesChart(
                         x=[filtered_dates[-1]],
                         y=[filtered_y[-1]],
                         mode="markers",
-                        marker=dict(color=line_color, size=8),
+                        marker={"color": line_color, "size": 8},
                         showlegend=False,
                     )
                 )
@@ -241,45 +241,45 @@ def MultiLinesChart(
         fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(
-                family=theme.fonts["family"],
-                size=theme.fonts["axis_label"],
-                color=theme.colors["text_muted"],
-            ),
-            margin=dict(l=20, r=20, t=20, b=40),
-            xaxis=dict(
-                showgrid=False,
-                zeroline=True,
-                zerolinecolor="rgba(255,255,255,0.3)",
-                zerolinewidth=1.5,
-                tickangle=-45,
-                tickformat="%b%y",
-                linecolor="rgba(255,255,255,0.2)",
-                linewidth=1.5,
-            ),
-            yaxis=dict(
-                showgrid=False,
-                zeroline=True,
-                zerolinecolor="rgba(255,255,255,0.3)",
-                zerolinewidth=1.5,
-                linecolor="rgba(255,255,255,0.2)",
-                linewidth=1.5,
-            ),
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="center",
-                x=0.5,
-                font=dict(size=10),
-            ),
+            font={
+                "family": theme.fonts["family"],
+                "size": theme.fonts["axis_label"],
+                "color": theme.colors["text_muted"],
+            },
+            margin={"l": 20, "r": 20, "t": 20, "b": 40},
+            xaxis={
+                "showgrid": False,
+                "zeroline": True,
+                "zerolinecolor": "rgba(255,255,255,0.3)",
+                "zerolinewidth": 1.5,
+                "tickangle": -45,
+                "tickformat": "%b%y",
+                "linecolor": "rgba(255,255,255,0.2)",
+                "linewidth": 1.5,
+            },
+            yaxis={
+                "showgrid": False,
+                "zeroline": True,
+                "zerolinecolor": "rgba(255,255,255,0.3)",
+                "zerolinewidth": 1.5,
+                "linecolor": "rgba(255,255,255,0.2)",
+                "linewidth": 1.5,
+            },
+            legend={
+                "orientation": "h",
+                "yanchor": "bottom",
+                "y": 1.02,
+                "xanchor": "center",
+                "x": 0.5,
+                "font": {"size": 10},
+            },
             hovermode="x unified",
-            hoverlabel=dict(
-                bgcolor="rgba(20,20,40,0.85)",
-                bordercolor="rgba(255,255,255,0.3)",
-                font=dict(color="white", size=12, family=theme.fonts["family"]),
-                align="left",
-            ),
+            hoverlabel={
+                "bgcolor": "rgba(20,20,40,0.85)",
+                "bordercolor": "rgba(255,255,255,0.3)",
+                "font": {"color": "white", "size": 12, "family": theme.fonts["family"]},
+                "align": "left",
+            },
         )
 
         return fig

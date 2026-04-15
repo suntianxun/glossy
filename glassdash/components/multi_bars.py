@@ -215,7 +215,7 @@ def MultiBarsChart(
                 continue
 
             y_all = dataframe[col].to_list()
-            date_to_y = dict(zip(x_dates_all, y_all))
+            date_to_y = dict(zip(x_dates_all, y_all, strict=False))
             filtered_y = [date_to_y.get(d, 0) for d in filtered_dates]
 
             color = bar_colors_list[i]
@@ -227,55 +227,55 @@ def MultiBarsChart(
                     x=filtered_dates,
                     y=filtered_y,
                     name=label,
-                    marker=dict(
-                        color=color,
-                        line=dict(width=0),
-                        cornerradius=4,
-                    ),
+                    marker={
+                        "color": color,
+                        "line": {"width": 0},
+                        "cornerradius": 4,
+                    },
                     hovertemplate=f"<b>{label}</b><br>Value: %{{y:.1f}}<extra></extra>",
-                    hoverlabel=dict(
-                        bgcolor="rgba(20,20,40,0.95)",
-                        bordercolor=color,
-                        font=dict(color="white", size=12, family=theme.fonts["family"]),
-                    ),
+                    hoverlabel={
+                        "bgcolor": "rgba(20,20,40,0.95)",
+                        "bordercolor": color,
+                        "font": {"color": "white", "size": 12, "family": theme.fonts["family"]},
+                    },
                 )
             )
 
         fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(
-                family=theme.fonts["family"],
-                size=theme.fonts["axis_label"],
-                color=theme.colors["text_muted"],
-            ),
-            margin=dict(l=20, r=20, t=20, b=40),
-            xaxis=dict(
-                showgrid=False,
-                zeroline=True,
-                zerolinecolor="rgba(255,255,255,0.3)",
-                zerolinewidth=1.5,
-                tickangle=-45,
-                tickformat="%b%y",
-                linecolor="rgba(255,255,255,0.2)",
-                linewidth=1.5,
-            ),
-            yaxis=dict(
-                showgrid=False,
-                zeroline=True,
-                zerolinecolor="rgba(255,255,255,0.3)",
-                zerolinewidth=1.5,
-                linecolor="rgba(255,255,255,0.2)",
-                linewidth=1.5,
-            ),
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="center",
-                x=0.5,
-                font=dict(size=10),
-            ),
+            font={
+                "family": theme.fonts["family"],
+                "size": theme.fonts["axis_label"],
+                "color": theme.colors["text_muted"],
+            },
+            margin={"l": 20, "r": 20, "t": 20, "b": 40},
+            xaxis={
+                "showgrid": False,
+                "zeroline": True,
+                "zerolinecolor": "rgba(255,255,255,0.3)",
+                "zerolinewidth": 1.5,
+                "tickangle": -45,
+                "tickformat": "%b%y",
+                "linecolor": "rgba(255,255,255,0.2)",
+                "linewidth": 1.5,
+            },
+            yaxis={
+                "showgrid": False,
+                "zeroline": True,
+                "zerolinecolor": "rgba(255,255,255,0.3)",
+                "zerolinewidth": 1.5,
+                "linecolor": "rgba(255,255,255,0.2)",
+                "linewidth": 1.5,
+            },
+            legend={
+                "orientation": "h",
+                "yanchor": "bottom",
+                "y": 1.02,
+                "xanchor": "center",
+                "x": 0.5,
+                "font": {"size": 10},
+            },
             barmode="group",
             hovermode="closest",
             hoverdistance=-1,

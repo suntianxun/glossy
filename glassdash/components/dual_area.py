@@ -183,8 +183,8 @@ def DualAreaChart(
 
         y1_all = dataframe[y1].to_list()
         y2_all = dataframe[y2].to_list()
-        date_to_y1 = dict(zip(x_dates_all, y1_all))
-        date_to_y2 = dict(zip(x_dates_all, y2_all))
+        date_to_y1 = dict(zip(x_dates_all, y1_all, strict=False))
+        date_to_y2 = dict(zip(x_dates_all, y2_all, strict=False))
 
         filtered_y1 = [date_to_y1.get(d, 0) for d in filtered_dates]
         filtered_y2 = [date_to_y2.get(d, 0) for d in filtered_dates]
@@ -197,7 +197,7 @@ def DualAreaChart(
                 y=filtered_y1 + [0] * len(filtered_y1),
                 fill="toself",
                 fillcolor=f"rgba({rgb1[4:-1]},0.4)",
-                line=dict(color=c1, width=2),
+                line={"color": c1, "width": 2},
                 name=labels[0],
                 hovertemplate=f"{labels[0]}: %{{y:.1f}}<extra></extra>",
             )
@@ -209,7 +209,7 @@ def DualAreaChart(
                 y=filtered_y2 + [0] * len(filtered_y2),
                 fill="toself",
                 fillcolor=f"rgba({rgb2[4:-1]},0.4)",
-                line=dict(color=c2, width=2),
+                line={"color": c2, "width": 2},
                 name=labels[1],
                 hovertemplate=f"{labels[1]}: %{{y:.1f}}<extra></extra>",
             )
@@ -218,45 +218,45 @@ def DualAreaChart(
         fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(
-                family=theme.fonts["family"],
-                size=theme.fonts["axis_label"],
-                color=theme.colors["text_muted"],
-            ),
-            margin=dict(l=20, r=20, t=20, b=40),
-            xaxis=dict(
-                showgrid=False,
-                zeroline=True,
-                zerolinecolor="rgba(255,255,255,0.3)",
-                zerolinewidth=1.5,
-                tickangle=-45,
-                tickformat="%b%y",
-                linecolor="rgba(255,255,255,0.2)",
-                linewidth=1.5,
-            ),
-            yaxis=dict(
-                showgrid=False,
-                zeroline=True,
-                zerolinecolor="rgba(255,255,255,0.3)",
-                zerolinewidth=1.5,
-                linecolor="rgba(255,255,255,0.2)",
-                linewidth=1.5,
-            ),
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="center",
-                x=0.5,
-                font=dict(size=10),
-            ),
+            font={
+                "family": theme.fonts["family"],
+                "size": theme.fonts["axis_label"],
+                "color": theme.colors["text_muted"],
+            },
+            margin={"l": 20, "r": 20, "t": 20, "b": 40},
+            xaxis={
+                "showgrid": False,
+                "zeroline": True,
+                "zerolinecolor": "rgba(255,255,255,0.3)",
+                "zerolinewidth": 1.5,
+                "tickangle": -45,
+                "tickformat": "%b%y",
+                "linecolor": "rgba(255,255,255,0.2)",
+                "linewidth": 1.5,
+            },
+            yaxis={
+                "showgrid": False,
+                "zeroline": True,
+                "zerolinecolor": "rgba(255,255,255,0.3)",
+                "zerolinewidth": 1.5,
+                "linecolor": "rgba(255,255,255,0.2)",
+                "linewidth": 1.5,
+            },
+            legend={
+                "orientation": "h",
+                "yanchor": "bottom",
+                "y": 1.02,
+                "xanchor": "center",
+                "x": 0.5,
+                "font": {"size": 10},
+            },
             hovermode="x unified",
-            hoverlabel=dict(
-                bgcolor="rgba(20,20,40,0.85)",
-                bordercolor="rgba(255,255,255,0.3)",
-                font=dict(color="white", size=12, family=theme.fonts["family"]),
-                align="left",
-            ),
+            hoverlabel={
+                "bgcolor": "rgba(20,20,40,0.85)",
+                "bordercolor": "rgba(255,255,255,0.3)",
+                "font": {"color": "white", "size": 12, "family": theme.fonts["family"]},
+                "align": "left",
+            },
         )
 
         return fig
