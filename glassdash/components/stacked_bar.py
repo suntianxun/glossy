@@ -317,7 +317,7 @@ def StackedBarChart(
 
         fig = go.Figure()
 
-        last_idx = len(filtered_dates) - 1
+        len(filtered_dates) - 1
 
         for label, col in segments.items():
             if label not in selected_set:
@@ -326,15 +326,13 @@ def StackedBarChart(
             color_key = colors.get(label, "primary")
             bar_color = theme.colors.get(color_key, theme.colors["primary"])
             h = bar_color.lstrip("#")
-            r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+            _r, _g, _b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
 
             y_values = dataframe[col].to_list()
 
-            date_to_y = dict(zip(x_dates_all, y_values))
+            date_to_y = dict(zip(x_dates_all, y_values, strict=False))
 
             for date_idx, xd in enumerate(filtered_dates):
-                is_current = date_idx == last_idx
-                opacity = 1.0 if is_current else 0.85
                 yv = date_to_y.get(xd, 0)
 
                 fig.add_trace(
@@ -342,11 +340,11 @@ def StackedBarChart(
                         x=[xd],
                         y=[yv],
                         name=label if date_idx == 0 else None,
-                        marker=dict(
-                            color=bar_color,
-                            line=dict(width=0),
-                            cornerradius=4,
-                        ),
+                        marker={
+                            "color": bar_color,
+                            "line": {"width": 0},
+                            "cornerradius": 4,
+                        },
                         hovertemplate=f"<b>{label}</b><br>Value: {yv}<extra></extra>",
                         showlegend=(date_idx == 0),
                     )
@@ -355,47 +353,47 @@ def StackedBarChart(
         fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(
-                family=theme.fonts["family"],
-                size=theme.fonts["axis_label"],
-                color=theme.colors["text_muted"],
-            ),
-            margin=dict(l=20, r=20, t=20, b=40),
-            xaxis=dict(
-                showgrid=False,
-                zeroline=True,
-                zerolinecolor="rgba(255,255,255,0.3)",
-                zerolinewidth=1.5,
-                tickangle=-45,
-                tickformat="%b%y",
-                linecolor="rgba(255,255,255,0.2)",
-                linewidth=1.5,
-            ),
-            yaxis=dict(
-                showgrid=False,
-                zeroline=True,
-                zerolinecolor="rgba(255,255,255,0.3)",
-                zerolinewidth=1.5,
-                linecolor="rgba(255,255,255,0.2)",
-                linewidth=1.5,
-            ),
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.08,
-                xanchor="center",
-                x=0.5,
-                font=dict(size=10),
-            ),
+            font={
+                "family": theme.fonts["family"],
+                "size": theme.fonts["axis_label"],
+                "color": theme.colors["text_muted"],
+            },
+            margin={"l": 20, "r": 20, "t": 20, "b": 40},
+            xaxis={
+                "showgrid": False,
+                "zeroline": True,
+                "zerolinecolor": "rgba(255,255,255,0.3)",
+                "zerolinewidth": 1.5,
+                "tickangle": -45,
+                "tickformat": "%b%y",
+                "linecolor": "rgba(255,255,255,0.2)",
+                "linewidth": 1.5,
+            },
+            yaxis={
+                "showgrid": False,
+                "zeroline": True,
+                "zerolinecolor": "rgba(255,255,255,0.3)",
+                "zerolinewidth": 1.5,
+                "linecolor": "rgba(255,255,255,0.2)",
+                "linewidth": 1.5,
+            },
+            legend={
+                "orientation": "h",
+                "yanchor": "bottom",
+                "y": 1.08,
+                "xanchor": "center",
+                "x": 0.5,
+                "font": {"size": 10},
+            },
             barmode="stack",
             hovermode="x unified",
             showlegend=True,
-            hoverlabel=dict(
-                bgcolor="rgba(20,20,40,0.85)",
-                bordercolor="rgba(255,255,255,0.3)",
-                font=dict(color="white", size=12, family=theme.fonts["family"]),
-                align="left",
-            ),
+            hoverlabel={
+                "bgcolor": "rgba(20,20,40,0.85)",
+                "bordercolor": "rgba(255,255,255,0.3)",
+                "font": {"color": "white", "size": 12, "family": theme.fonts["family"]},
+                "align": "left",
+            },
         )
 
         return fig

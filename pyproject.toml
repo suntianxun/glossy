@@ -2,8 +2,12 @@
 name = "glassdash"
 version = "0.1.0"
 description = "Beautiful glassmorphism dashboards for Plotly Dash + Polars"
-
+readme = "README.md"
 requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Stephen Sun", email = "stephen@example.com" }
+]
 dependencies = [
     "dash>=2.0",
     "polars>=0.19",
@@ -16,6 +20,10 @@ dev = [
     "ruff",
     "pytest",
 ]
+
+[project.urls]
+Homepage = "https://github.com/suntianxun/glossy"
+Repository = "https://github.com/suntianxun/glossy"
 
 [build-system]
 requires = ["hatchling"]

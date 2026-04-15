@@ -175,7 +175,7 @@ def AreaChart(
         rgb = hex_to_rgb(base_color)
 
         y_all = dataframe[y].to_list()
-        date_to_y = dict(zip(x_dates_all, y_all))
+        date_to_y = dict(zip(x_dates_all, y_all, strict=False))
 
         fig = go.Figure()
 
@@ -188,7 +188,7 @@ def AreaChart(
                     x=filtered_dates[:-1],
                     y=filtered_y[:-1],
                     mode="lines",
-                    line=dict(color=base_color, width=2),
+                    line={"color": base_color, "width": 2},
                     fill="tonexty",
                     fillcolor=f"rgba({rgb[4:-1]},0.3)",
                     opacity=0.7,
@@ -202,7 +202,7 @@ def AreaChart(
                 x=[filtered_dates[-1]],
                 y=[filtered_y[-1]],
                 mode="lines",
-                line=dict(color=base_color, width=2),
+                line={"color": base_color, "width": 2},
                 fill="tonexty",
                 fillcolor=f"rgba({rgb[4:-1]},0.3)",
                 opacity=1.0,
@@ -217,10 +217,10 @@ def AreaChart(
                     x=[filtered_dates[-1]],
                     y=[filtered_y[-1]],
                     mode="markers",
-                    marker=dict(
-                        color="rgba(255,255,255,0.25)",
-                        size=22,
-                    ),
+                    marker={
+                        "color": "rgba(255,255,255,0.25)",
+                        "size": 22,
+                    },
                     hovertemplate=" ",
                 )
             )
@@ -230,10 +230,10 @@ def AreaChart(
                     x=[filtered_dates[-1]],
                     y=[filtered_y[-1]],
                     mode="markers",
-                    marker=dict(
-                        color="rgba(255,255,255,0.4)",
-                        size=16,
-                    ),
+                    marker={
+                        "color": "rgba(255,255,255,0.4)",
+                        "size": 16,
+                    },
                     hovertemplate=" ",
                 )
             )
@@ -243,11 +243,11 @@ def AreaChart(
                     x=[filtered_dates[-1]],
                     y=[filtered_y[-1]],
                     mode="markers",
-                    marker=dict(
-                        color=highlight_color,
-                        size=12,
-                        line=dict(width=2.5, color="rgba(255,255,255,0.8)"),
-                    ),
+                    marker={
+                        "color": highlight_color,
+                        "size": 12,
+                        "line": {"width": 2.5, "color": "rgba(255,255,255,0.8)"},
+                    },
                     hovertemplate=f"Current: {filtered_y[-1]:.1f}<extra></extra>",
                 )
             )
@@ -258,7 +258,7 @@ def AreaChart(
                 x=filtered_dates,
                 y=[max(filtered_y) * 1.1] * len(filtered_dates),
                 mode="lines",
-                line=dict(color="rgba(255,255,255,0.08)", width=1),
+                line={"color": "rgba(255,255,255,0.08)", "width": 1},
                 hoverinfo="skip",
             )
         )
@@ -266,37 +266,37 @@ def AreaChart(
         fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(
-                family=theme.fonts["family"],
-                size=theme.fonts["axis_label"],
-                color=theme.colors["text_muted"],
-            ),
-            margin=dict(l=20, r=20, t=30, b=40),
-            xaxis=dict(
-                showgrid=False,
-                zeroline=True,
-                zerolinecolor="rgba(255,255,255,0.3)",
-                zerolinewidth=1.5,
-                tickangle=-45,
-                tickformat="%b%y",
-                linecolor="rgba(255,255,255,0.2)",
-                linewidth=1.5,
-            ),
-            yaxis=dict(
-                showgrid=False,
-                zeroline=True,
-                zerolinecolor="rgba(255,255,255,0.3)",
-                zerolinewidth=1.5,
-                linecolor="rgba(255,255,255,0.2)",
-                linewidth=1.5,
-            ),
+            font={
+                "family": theme.fonts["family"],
+                "size": theme.fonts["axis_label"],
+                "color": theme.colors["text_muted"],
+            },
+            margin={"l": 20, "r": 20, "t": 30, "b": 40},
+            xaxis={
+                "showgrid": False,
+                "zeroline": True,
+                "zerolinecolor": "rgba(255,255,255,0.3)",
+                "zerolinewidth": 1.5,
+                "tickangle": -45,
+                "tickformat": "%b%y",
+                "linecolor": "rgba(255,255,255,0.2)",
+                "linewidth": 1.5,
+            },
+            yaxis={
+                "showgrid": False,
+                "zeroline": True,
+                "zerolinecolor": "rgba(255,255,255,0.3)",
+                "zerolinewidth": 1.5,
+                "linecolor": "rgba(255,255,255,0.2)",
+                "linewidth": 1.5,
+            },
             hovermode="x unified",
-            hoverlabel=dict(
-                bgcolor="rgba(20,20,40,0.85)",
-                bordercolor="rgba(255,255,255,0.3)",
-                font=dict(color="white", size=12, family=theme.fonts["family"]),
-                align="left",
-            ),
+            hoverlabel={
+                "bgcolor": "rgba(20,20,40,0.85)",
+                "bordercolor": "rgba(255,255,255,0.3)",
+                "font": {"color": "white", "size": 12, "family": theme.fonts["family"]},
+                "align": "left",
+            },
         )
 
         return fig
