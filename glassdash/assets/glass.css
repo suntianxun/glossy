@@ -59,15 +59,9 @@ body {
 
 /* Section styles */
 .glass-section {
-    margin-bottom: 32px;
+    position: relative;
 }
 .glass-section-header {
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 12px;
-    padding: 16px 20px;
     margin-bottom: 16px;
 }
 .glass-section-title {
@@ -84,6 +78,57 @@ body {
 .glass-section-children {
     display: grid;
     gap: 20px;
+}
+.glass-section-divider {
+    height: 1px;
+    margin: 32px 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255,255,255,0.3) 20%,
+        rgba(255,255,255,0.5) 50%,
+        rgba(255,255,255,0.3) 80%,
+        transparent 100%
+    );
+    position: relative;
+}
+.glass-section-divider::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 5px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(79,172,254,0.4) 30%,
+        rgba(79,172,254,0.6) 50%,
+        rgba(79,172,254,0.4) 70%,
+        transparent
+    );
+    border-radius: 50%;
+    filter: blur(4px);
+}
+
+/* Dashboard grid layout - responsive breakpoints */
+@media (max-width: 1200px) {
+    .glass-dashboard-grid[style*="repeat(3"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .glass-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .glass-dashboard-grid[style*="repeat"] {
+        grid-template-columns: 1fr !important;
+    }
+    .glass-kpi-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Error card styles */
