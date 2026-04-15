@@ -112,28 +112,10 @@ body {
     filter: blur(4px);
 }
 
-/* Dashboard grid layout */
-.glass-dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.glass-section-full {
-    grid-column: 1 / -1;
-}
-
-.glass-kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-}
-
+/* Dashboard grid layout - responsive breakpoints */
 @media (max-width: 1200px) {
-    .glass-dashboard-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .glass-dashboard-grid[style*="repeat(3"] {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
     .glass-kpi-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -141,8 +123,8 @@ body {
 }
 
 @media (max-width: 768px) {
-    .glass-dashboard-grid {
-        grid-template-columns: 1fr;
+    .glass-dashboard-grid[style*="repeat"] {
+        grid-template-columns: 1fr !important;
     }
     .glass-kpi-grid {
         grid-template-columns: 1fr;

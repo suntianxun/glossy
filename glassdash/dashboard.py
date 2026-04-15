@@ -3,7 +3,14 @@ from dash import html
 from glassdash.theme import GlassTheme
 
 
-def GlassDashboard(title="Dashboard", date_range=None, theme=None, children=None, **kwargs):
+def GlassDashboard(
+    title="Dashboard",
+    date_range=None,
+    theme=None,
+    columns=3,
+    children=None,
+    **kwargs,
+):
     if theme is None:
         theme = GlassTheme()
 
@@ -32,7 +39,15 @@ def GlassDashboard(title="Dashboard", date_range=None, theme=None, children=None
             )
         )
 
-    content = html.Div(children, className="glass-dashboard-grid")
+    grid_style = {
+        "display": "grid",
+        "gridTemplateColumns": f"repeat({columns}, 1fr)",
+        "gap": "24px",
+        "maxWidth": "1400px",
+        "margin": "0 auto",
+    }
+
+    content = html.Div(children, style=grid_style)
 
     return html.Div(
         [
