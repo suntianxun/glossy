@@ -6,9 +6,7 @@ from plotly import graph_objects as go
 from glassdash.theme import GlassTheme
 
 
-def RadialGauge(
-    value, max_value=100, label="Value", color="success", theme=None, **kwargs
-):
+def RadialGauge(value, max_value=100, label="Value", color="success", theme=None, **kwargs):
     if theme is None:
         theme = GlassTheme()
 
@@ -56,8 +54,13 @@ def RadialGauge(
     return html.Div(
         html.Div(
             className="glass-card",
-            style={"padding": "15px"},
-            children=[dcc.Graph(figure=fig, style={"height": "200px"})],
+            style={
+                "padding": "15px",
+                "height": "100%",
+                "min-height": "0",
+                "box-sizing": "border-box",
+            },
+            children=[dcc.Graph(figure=fig, style={"height": "100%"})],
         ),
         **kwargs,
     )

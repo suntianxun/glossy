@@ -14,6 +14,15 @@ body {
     margin-bottom: 20px;
     position: relative;
     z-index: 1;
+    height: 100%;
+    min-height: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+.glass-card > * {
+    flex: 1;
+    min-height: 0;
 }
 .glass-filter-panel {
     background: rgba(255,255,255,0.15) !important;
@@ -25,10 +34,19 @@ body {
     margin-bottom: 10px;
     position: relative;
     z-index: 100;
+    flex-shrink: 0;
 }
 .glass-chart-container {
     position: relative;
     z-index: 1;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+.glass-chart-container > div {
+    flex: 1;
+    min-height: 0;
 }
 .glass-kpi {
     text-align: center;
@@ -60,9 +78,12 @@ body {
 /* Section styles */
 .glass-section {
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 .glass-section-header {
     margin-bottom: 16px;
+    flex-shrink: 0;
 }
 .glass-section-title {
     font-size: 18px;
@@ -78,6 +99,15 @@ body {
 .glass-section-children {
     display: grid;
     gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+.glass-section-children > * {
+    min-height: 0;
+}
+.glass-section-child-wrapper {
+    min-height: 0;
+    overflow: hidden;
 }
 .glass-section-divider {
     height: 1px;
