@@ -63,13 +63,29 @@ def GlassDashboard(
     )
 
 
-def Section(title: str, description: str = None, children=None, theme=None, **kwargs) -> html.Div:
+def Section(
+    title: str,
+    description: str = None,
+    children=None,
+    theme=None,
+    height=None,
+    width=None,
+    **kwargs,
+) -> html.Div:
     theme = theme or GlassTheme()
 
     existing_class = kwargs.pop("className", "")
     section_class = "glass-section"
     if existing_class:
         section_class = f"{section_class} {existing_class}"
+
+    style = {}
+    if height is not None:
+        style["height"] = f"{height}px"
+    if width is not None:
+        style["width"] = f"{width}px"
+    if style:
+        kwargs["style"] = {**(kwargs.get("style") or {}), **style}
 
     return html.Div(
         [
