@@ -208,11 +208,13 @@ def StackedBarWithBreakdown(
                     "marginBottom": "5px",
                     "position": "relative",
                     "zIndex": 100,
+                    "flex-shrink": 0,
                 },
             ),
             filter_panel,
             charts_row,
-        ]
+        ],
+        className="glass-chart-container",
     )
 
     @callback(
