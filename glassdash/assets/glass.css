@@ -193,3 +193,126 @@ body {
     color: rgba(255,255,255,0.5);
     margin-top: 8px;
 }
+
+/* Sidebar styles */
+.glass-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-right: 1px solid rgba(255,255,255,0.2);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+    z-index: 1000;
+    overflow: hidden;
+}
+.glass-sidebar.expanded {
+    width: 220px;
+    padding: 20px 16px;
+}
+.glass-sidebar.collapsed {
+    width: 60px;
+    padding: 20px 12px;
+}
+.glass-sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    overflow: hidden;
+}
+.glass-sidebar-logo {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    background: linear-gradient(135deg, #4facfe, #06b6d4);
+    border-radius: 8px;
+}
+.glass-sidebar-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    opacity: 1;
+    transition: opacity 0.2s;
+}
+.glass-sidebar.collapsed .glass-sidebar-title {
+    opacity: 0;
+    width: 0;
+}
+.glass-sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.glass-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-decoration: none;
+    color: rgba(255,255,255,0.7);
+    overflow: hidden;
+}
+.glass-sidebar-item:hover {
+    background: rgba(255,255,255,0.1);
+    color: #ffffff;
+}
+.glass-sidebar-item.active {
+    background: rgba(79,172,254,0.2);
+    color: #4facfe;
+    border: 1px solid rgba(79,172,254,0.3);
+}
+.glass-sidebar-icon {
+    font-size: 20px;
+    min-width: 24px;
+    text-align: center;
+}
+.glass-sidebar-label {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 1;
+    transition: opacity 0.2s;
+}
+.glass-sidebar.collapsed .glass-sidebar-label {
+    opacity: 0;
+    width: 0;
+}
+.glass-sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.7);
+    transition: all 0.2s;
+    margin-top: auto;
+}
+.glass-sidebar-toggle:hover {
+    background: rgba(255,255,255,0.15);
+    color: #ffffff;
+}
+.glass-main-content {
+    margin-left: 220px;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+.glass-main-content.sidebar-collapsed {
+    margin-left: 60px;
+}
