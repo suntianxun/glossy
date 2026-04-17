@@ -75,18 +75,21 @@ def create_demo_app():
 
         page_func = page_funcs.get(page_id, WorkforcePage)
 
-        updated_nav = []
-        for child in sidebar_children:
-            if hasattr(child, "props") and "nav-" in str(child.props.get("id", "")):
-                nav_id = child.props["id"].replace("nav-", "")
-                is_active = nav_id == page_id
-                new_class = f"glass-sidebar-item {'active' if is_active else ''}"
-                child.props["className"] = new_class
-                updated_nav.append(child)
-            else:
-                updated_nav.append(child)
+        header = sidebar_children[0]
 
-        return page_func(theme=theme), updated_nav
+        new_nav = [
+            html.Div(
+                [
+                    html.Div(item["icon"], className="glass-sidebar-icon"),
+                    html.Span(item["label"], className="glass-sidebar-label"),
+                ],
+                className=f"glass-sidebar-item {'active' if item['id'] == page_id else ''}",
+                id=f"nav-{item['id']}",
+            )
+            for item in nav_items
+        ]
+
+        return page_func(theme=theme), [header] + new_nav
 
     @app.callback(
         Output("url", "pathname"),
