@@ -210,7 +210,6 @@ body {
     display: flex;
     flex-direction: column;
     z-index: 1000;
-    overflow: hidden;
 }
 .glass-sidebar-header {
     display: flex;
