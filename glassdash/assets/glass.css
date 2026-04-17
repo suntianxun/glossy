@@ -197,13 +197,14 @@ body {
 /* Sidebar styles */
 .glass-sidebar {
     position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
+    left: 16px;
+    top: 16px;
+    height: calc(100vh - 32px);
     background: rgba(255,255,255,0.15);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-right: 1px solid rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 16px;
     display: flex;
     flex-direction: column;
     transition: width 0.3s ease;
@@ -215,7 +216,7 @@ body {
     padding: 20px 16px;
 }
 .glass-sidebar.collapsed {
-    width: 60px;
+    width: 72px;
     padding: 20px 12px;
 }
 .glass-sidebar-header {
@@ -307,12 +308,12 @@ body {
     color: #ffffff;
 }
 .glass-main-content {
-    margin-left: 220px;
+    margin-left: 252px;
     padding: 20px;
     transition: margin-left 0.3s ease;
     min-height: 100vh;
     box-sizing: border-box;
 }
 .glass-main-content.sidebar-collapsed {
-    margin-left: 60px;
+    margin-left: 104px;
 }
