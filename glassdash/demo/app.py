@@ -9,6 +9,7 @@ def create_demo_app():
     app = Dash(
         __name__,
         assets_folder=os.path.join(os.path.dirname(__file__), "..", "assets"),
+        suppress_callback_exceptions=True,
     )
 
     from glassdash import GlassTheme
