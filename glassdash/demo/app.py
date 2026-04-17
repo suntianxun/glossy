@@ -1,184 +1,135 @@
-"""Demo dashboard showcasing all GlassDash components."""
+"""Demo dashboard with multi-page navigation."""
 
-import polars as pl
-from dash import Dash
+import os
 
-from glassdash import GlassDashboard, GlassTheme, Section
-from glassdash.components import (
-    AreaChart,
-    BarChart,
-    DualAreaChart,
-    MultiBarsChart,
-    MultiLinesChart,
-    RadialGauge,
-    StackedBarChart,
-    StackedBarWithBreakdown,
-    StackedBarWithLine,
-)
+from dash import Dash, Input, Output, State, dcc, html
 
 
 def create_demo_app():
-    import os
-
     app = Dash(
         __name__,
         assets_folder=os.path.join(os.path.dirname(__file__), "..", "assets"),
     )
 
+    from glassdash import GlassTheme
+    from glassdash.demo.pages.finance import FinancePage
+    from glassdash.demo.pages.sales import SalesPage
+    from glassdash.demo.pages.workforce import WorkforcePage
+
     theme = GlassTheme()
 
-    df = pl.DataFrame(
-        {
-            "month": [
-                "2024-07",
-                "2024-08",
-                "2024-09",
-                "2024-10",
-                "2024-11",
-                "2024-12",
-                "2025-01",
-                "2025-02",
-                "2025-03",
-                "2025-04",
-                "2025-05",
-                "2025-06",
-            ],
-            "fte": [
-                18.2,
-                19.1,
-                19.5,
-                20.3,
-                21.0,
-                21.5,
-                22.0,
-                22.5,
-                23.0,
-                23.5,
-                24.0,
-                24.5,
-            ],
-            "fte_ft": [12, 13, 13, 14, 14, 15, 15, 16, 16, 16, 17, 17],
-            "fte_pt": [4, 4, 4, 4, 5, 4, 5, 4, 5, 5, 5, 5],
-            "fte_cont": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-            "fte_other": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            "total_fte": [19, 20, 20, 21, 22, 22, 23, 23, 24, 24, 25, 25],
-            "efficiency": [82, 83, 84, 85, 86, 85, 87, 87, 88, 87, 87, 87],
-            "efficacy": [88, 89, 90, 91, 92, 91, 93, 93, 94, 93, 93, 93],
-            "yield_pct": [3.2, 3.3, 3.4, 3.5, 3.6, 3.5, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2],
-            "code_integration": [65, 70, 75, 78, 80, 82, 85, 87, 88, 90, 92, 95],
-            "squads": [4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8],
-            "ai_usage": [10, 12, 15, 18, 22, 28, 35, 42, 50, 58, 68, 78],
-            "squad_a": [4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8],
-            "squad_b": [3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7],
-            "squad_c": [3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7],
-            "fte_avg": [85, 86, 87, 87, 88, 87, 88, 89, 89, 90, 90, 91],
-            "fte_target": [90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90],
-        }
-    )
+    nav_items = [
+        {"id": "workforce", "label": "Workforce", "icon": "👥"},
+        {"id": "finance", "label": "Finance", "icon": "💰"},
+        {"id": "sales", "label": "Sales", "icon": "📊"},
+    ]
 
-    app.layout = GlassDashboard(
-        title="Workforce Statistics Dashboard",
-        date_range=("2024-07-01", "2025-06-13"),
-        theme=theme,
-        children=[
-            Section(
-                "FTE Trends",
-                "Full-time equivalent over time",
-                height=600,
-                children=[
-                    AreaChart(df, x="month", y="fte", theme=theme),
-                    MultiLinesChart(
-                        df,
-                        x="month",
-                        lines={"FTE": "fte", "Target": "total_fte"},
-                        theme=theme,
-                    ),
+    sidebar = html.Div(
+        [
+            html.Div(
+                [
+                    html.Div(className="glass-sidebar-logo"),
+                    html.Span("GlassDash", className="glass-sidebar-title"),
                 ],
+                className="glass-sidebar-header",
             ),
-            Section(
-                "Squad Performance",
-                "Team composition by squad",
-                height=600,
-                children=[
-                    MultiBarsChart(
-                        df,
-                        x="month",
-                        bars={"Squad A": "squad_a", "Squad B": "squad_b", "Squad C": "squad_c"},
-                        theme=theme,
-                        highlight_current=False,
-                    ),
-                    BarChart(df, x="month", y="squads", theme=theme),
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.Div(item["icon"], className="glass-sidebar-icon"),
+                            html.Span(item["label"], className="glass-sidebar-label"),
+                        ],
+                        className=f"glass-sidebar-item {'active' if item['id'] == 'workforce' else ''}",
+                        id=f"nav-{item['id']}",
+                    )
+                    for item in nav_items
                 ],
+                className="glass-sidebar-nav",
             ),
-            Section(
-                "Labor Mix",
-                "Breakdown by employment type",
-                height=900,
-                children=[
-                    StackedBarChart(
-                        df,
-                        x="month",
-                        segments={
-                            "Full-time": "fte_ft",
-                            "Part-time": "fte_pt",
-                            "Contingent": "fte_cont",
-                            "Others": "fte_other",
-                        },
-                        theme=theme,
-                    ),
-                    StackedBarWithLine(
-                        df,
-                        x="month",
-                        bar_segments={
-                            "Full-time": "fte_ft",
-                            "Part-time": "fte_pt",
-                            "Contingent": "fte_cont",
-                        },
-                        line_y="total_fte",
-                        theme=theme,
-                    ),
-                    StackedBarWithBreakdown(
-                        df,
-                        x="month",
-                        bar_segments={
-                            "Full-time": "fte_ft",
-                            "Part-time": "fte_pt",
-                            "Contingent": "fte_cont",
-                            "Others": "fte_other",
-                        },
-                        breakdown={
-                            "Full-time": {
-                                "Analyst": 0.3,
-                                "Engineer": 0.4,
-                                "Sales": 0.2,
-                                "Others": 0.1,
-                            },
-                            "Part-time": {"Morning": 0.5, "Afternoon": 0.5},
-                            "Contingent": {"Contractor": 0.6, "Temp": 0.4},
-                            "Others": {"External": 0.7, "Internal": 0.3},
-                        },
-                        theme=theme,
-                    ),
-                ],
-            ),
-            Section(
-                "Efficiency Metrics",
-                "Efficiency and efficacy over time",
-                height=400,
-                children=[
-                    DualAreaChart(df, x="month", y1="efficiency", y2="efficacy", theme=theme),
-                ],
-            ),
-            Section(
-                "Yield Gauge",
-                "Current yield performance",
-                height=400,
-                children=[
-                    RadialGauge(value=61, max_value=100, label="Yield", theme=theme),
-                ],
+            html.Button(
+                "◀",
+                id="sidebar-toggle",
+                n_clicks=0,
             ),
         ],
+        id="sidebar",
+        className="glass-sidebar expanded",
     )
+
+    content = html.Div(id="page-content", className="glass-main-content")
+
+    store = dcc.Store(id="sidebar-state", data={"collapsed": False})
+
+    url = dcc.Location(id="url", refresh=False)
+
+    app.layout = html.Div([url, store, sidebar, content])
+
+    @app.callback(
+        Output("sidebar", "className"),
+        Output("page-content", "className"),
+        Input("sidebar-toggle", "n_clicks"),
+        State("sidebar-state", "data"),
+    )
+    def toggle_sidebar(n_clicks, state):
+        if n_clicks and n_clicks > 0:
+            collapsed = not state.get("collapsed", False)
+            state["collapsed"] = collapsed
+        else:
+            collapsed = state.get("collapsed", False)
+
+        sidebar_class = f"glass-sidebar {'collapsed' if collapsed else 'expanded'}"
+        content_class = f"glass-main-content {'sidebar-collapsed' if collapsed else ''}"
+        return sidebar_class, content_class
+
+    @app.callback(
+        Output("page-content", "children"),
+        Output("sidebar", "children"),
+        Input("url", "pathname"),
+        [State("sidebar", "children")],
+    )
+    def render_page(pathname, sidebar_children):
+        page_id = pathname.lstrip("/") if pathname else "workforce"
+
+        if page_id not in ["workforce", "finance", "sales"]:
+            page_id = "workforce"
+
+        page_funcs = {
+            "workforce": WorkforcePage,
+            "finance": FinancePage,
+            "sales": SalesPage,
+        }
+
+        page_func = page_funcs.get(page_id, WorkforcePage)
+
+        updated_nav = []
+        for child in sidebar_children:
+            if hasattr(child, "props") and "nav-" in str(child.props.get("id", "")):
+                nav_id = child.props["id"].replace("nav-", "")
+                is_active = nav_id == page_id
+                new_class = f"glass-sidebar-item {'active' if is_active else ''}"
+                child.props["className"] = new_class
+                updated_nav.append(child)
+            else:
+                updated_nav.append(child)
+
+        return page_func(theme=theme), updated_nav
+
+    @app.callback(
+        Output("url", "pathname"),
+        Input("nav-workforce", "n_clicks"),
+        Input("nav-finance", "n_clicks"),
+        Input("nav-sales", "n_clicks"),
+    )
+    def update_url(n_workforce, n_finance, n_sales):
+        import dash
+
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            return "/workforce"
+        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        page_id = triggered_id.replace("nav-", "")
+        return f"/{page_id}"
 
     return app
 
