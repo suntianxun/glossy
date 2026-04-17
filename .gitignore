@@ -22,6 +22,8 @@ ENV/
 
 # Agent / OpenCode
 .superpowers/
+.superpowers/**/
+.worktrees/
 AGENTS.md
 agents.md
 CLAUDE.md
