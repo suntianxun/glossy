@@ -24,6 +24,14 @@ def create_demo_app():
         {"id": "sales", "label": "Sales", "icon": "📊"},
     ]
 
+    # Pre-create all pages upfront so their callbacks register properly
+    workforce_page = WorkforcePage(theme=theme)
+    finance_page = FinancePage(theme=theme)
+    sales_page = SalesPage(theme=theme)
+
+    # Initial active page is workforce
+    initial_page = workforce_page
+
     sidebar = html.Div(
         [
             html.Div(
@@ -49,31 +57,39 @@ def create_demo_app():
         className="glass-sidebar",
     )
 
-    content = html.Div(id="page-content", className="glass-main-content")
+    # Store component to track current page
+    store = dcc.Store(id="page-store", data={"page": "workforce"})
+
+    content = html.Div(
+        [initial_page],
+        id="page-content",
+        className="glass-main-content",
+    )
 
     url = dcc.Location(id="url", refresh=False)
 
-    app.layout = html.Div([url, sidebar, content])
+    app.layout = html.Div([url, store, sidebar, content])
 
     @app.callback(
         Output("page-content", "children"),
         Output("sidebar", "children"),
         Input("url", "pathname"),
         [State("sidebar", "children")],
+        [State("page-content", "children")],
     )
-    def render_page(pathname, sidebar_children):
+    def render_page(pathname, sidebar_children, current_content):
         page_id = pathname.lstrip("/") if pathname else "workforce"
 
         if page_id not in ["workforce", "finance", "sales"]:
             page_id = "workforce"
 
-        page_funcs = {
-            "workforce": WorkforcePage,
-            "finance": FinancePage,
-            "sales": SalesPage,
+        pages = {
+            "workforce": workforce_page,
+            "finance": finance_page,
+            "sales": sales_page,
         }
 
-        page_func = page_funcs.get(page_id, WorkforcePage)
+        selected_page = pages.get(page_id, workforce_page)
 
         header = sidebar_children[0]
 
@@ -89,7 +105,7 @@ def create_demo_app():
             for item in nav_items
         ]
 
-        return page_func(theme=theme), [header] + new_nav
+        return selected_page, [header] + new_nav
 
     @app.callback(
         Output("url", "pathname"),
