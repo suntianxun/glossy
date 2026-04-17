@@ -199,7 +199,7 @@ body {
     position: fixed;
     left: 16px;
     top: 16px;
-    height: calc(100vh - 32px);
+    bottom: 16px;
     width: 220px;
     padding: 20px 16px;
     background: rgba(255,255,255,0.15);
