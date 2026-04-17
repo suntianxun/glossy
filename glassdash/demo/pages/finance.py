@@ -1,17 +1,15 @@
 """Finance Statistics Dashboard page."""
 
 import polars as pl
+
 from glassdash import GlassDashboard, GlassTheme, Section
 from glassdash.components import (
     AreaChart,
     BarChart,
     DualAreaChart,
-    MultiBarsChart,
     MultiLinesChart,
     RadialGauge,
     StackedBarChart,
-    StackedBarWithBreakdown,
-    StackedBarWithLine,
 )
 
 

@@ -47,40 +47,16 @@ def create_demo_app():
                 ],
                 className="glass-sidebar-nav",
             ),
-            html.Button(
-                "◀",
-                id="sidebar-toggle",
-                n_clicks=0,
-            ),
         ],
         id="sidebar",
-        className="glass-sidebar expanded",
+        className="glass-sidebar",
     )
 
     content = html.Div(id="page-content", className="glass-main-content")
 
-    store = dcc.Store(id="sidebar-state", data={"collapsed": False})
-
     url = dcc.Location(id="url", refresh=False)
 
-    app.layout = html.Div([url, store, sidebar, content])
-
-    @app.callback(
-        Output("sidebar", "className"),
-        Output("page-content", "className"),
-        Input("sidebar-toggle", "n_clicks"),
-        State("sidebar-state", "data"),
-    )
-    def toggle_sidebar(n_clicks, state):
-        if n_clicks and n_clicks > 0:
-            collapsed = not state.get("collapsed", False)
-            state["collapsed"] = collapsed
-        else:
-            collapsed = state.get("collapsed", False)
-
-        sidebar_class = f"glass-sidebar {'collapsed' if collapsed else 'expanded'}"
-        content_class = f"glass-main-content {'sidebar-collapsed' if collapsed else ''}"
-        return sidebar_class, content_class
+    app.layout = html.Div([url, sidebar, content])
 
     @app.callback(
         Output("page-content", "children"),
