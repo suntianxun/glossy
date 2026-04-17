@@ -33,20 +33,17 @@ def create_demo_app():
                 ],
                 className="glass-sidebar-header",
             ),
+        ]
+        + [
             html.Div(
                 [
-                    html.Div(
-                        [
-                            html.Div(item["icon"], className="glass-sidebar-icon"),
-                            html.Span(item["label"], className="glass-sidebar-label"),
-                        ],
-                        className=f"glass-sidebar-item {'active' if item['id'] == 'workforce' else ''}",
-                        id=f"nav-{item['id']}",
-                    )
-                    for item in nav_items
+                    html.Div(item["icon"], className="glass-sidebar-icon"),
+                    html.Span(item["label"], className="glass-sidebar-label"),
                 ],
-                className="glass-sidebar-nav",
-            ),
+                className=f"glass-sidebar-item {'active' if item['id'] == 'workforce' else ''}",
+                id=f"nav-{item['id']}",
+            )
+            for item in nav_items
         ],
         id="sidebar",
         className="glass-sidebar",
