@@ -2,7 +2,7 @@ body {
     font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
     background: linear-gradient(135deg, #1a1a2e, #0f3460);
     margin: 0;
-    padding: 20px;
+    padding: 0;
 }
 .glass-card {
     background: rgba(255,255,255,0.15);
@@ -267,4 +267,5 @@ body {
     padding: 20px;
     min-height: 100vh;
     box-sizing: border-box;
+    width: calc(100vw - 252px);
 }
