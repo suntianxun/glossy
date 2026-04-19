@@ -2,9 +2,6 @@
 
 from glassdash._version import __version__
 from glassdash.components import (
-    AreaChart,
-    BarChart,
-    DualAreaChart,
     GlassCard,
     KPICard,
     LineChart,
@@ -12,7 +9,6 @@ from glassdash.components import (
     MultiLinesChart,
     RadialGauge,
     StackedBarChart,
-    StackedBarWithBreakdown,
     StackedBarWithLine,
 )
 from glassdash.dashboard import GlassDashboard, Section
@@ -26,13 +22,9 @@ __all__ = [
     "GlassCard",
     "KPICard",
     "LineChart",
-    "AreaChart",
     "MultiLinesChart",
     "MultiBarsChart",
     "StackedBarChart",
     "StackedBarWithLine",
-    "StackedBarWithBreakdown",
-    "BarChart",
-    "DualAreaChart",
     "RadialGauge",
 ]

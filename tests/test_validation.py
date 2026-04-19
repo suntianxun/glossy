@@ -57,7 +57,7 @@ class TestValidateDataframe:
     def test_valid_dataframe_with_default_column_names(self):
         """DataFrame with columns matching schema keys passes validation."""
         df = pl.DataFrame({"month": ["2024-07"], "value": [18.2]})
-        schema = SCHEMAS["AreaChart"]
+        schema = SCHEMAS["LineChart"]
         column_mapping = {"x": "month", "y": "value"}
         is_valid, errors = validate_dataframe(df, schema, column_mapping)
         assert is_valid is True
@@ -66,7 +66,7 @@ class TestValidateDataframe:
     def test_valid_dataframe_with_custom_column_names(self):
         """DataFrame with custom column names passes when mapped correctly."""
         df = pl.DataFrame({"month": ["2024-07"], "fte": [18.2]})
-        schema = SCHEMAS["AreaChart"]
+        schema = SCHEMAS["LineChart"]
         column_mapping = {"x": "month", "y": "fte"}
         is_valid, errors = validate_dataframe(df, schema, column_mapping)
         assert is_valid is True
@@ -75,7 +75,7 @@ class TestValidateDataframe:
     def test_missing_column_reports_error(self):
         """Missing column should be reported in errors."""
         df = pl.DataFrame({"month": ["2024-07"]})
-        schema = SCHEMAS["AreaChart"]
+        schema = SCHEMAS["LineChart"]
         column_mapping = {"x": "month", "y": "fte"}
         is_valid, errors = validate_dataframe(df, schema, column_mapping)
         assert is_valid is False
@@ -84,7 +84,7 @@ class TestValidateDataframe:
     def test_int_column_passes_numeric_validation(self):
         """Int64 column should pass NUMERIC validation."""
         df = pl.DataFrame({"month": ["2024-07"], "squads": [4]})
-        schema = SCHEMAS["BarChart"]
+        schema = SCHEMAS["LineChart"]
         column_mapping = {"x": "month", "y": "squads"}
         is_valid, errors = validate_dataframe(df, schema, column_mapping)
         assert is_valid is True
@@ -93,7 +93,7 @@ class TestValidateDataframe:
     def test_float_column_passes_numeric_validation(self):
         """Float64 column should pass NUMERIC validation."""
         df = pl.DataFrame({"month": ["2024-07"], "fte": [18.2]})
-        schema = SCHEMAS["AreaChart"]
+        schema = SCHEMAS["LineChart"]
         column_mapping = {"x": "month", "y": "fte"}
         is_valid, errors = validate_dataframe(df, schema, column_mapping)
         assert is_valid is True
@@ -103,24 +103,11 @@ class TestValidateDataframe:
 class TestSCHEMAS:
     """Test that SCHEMAS are correctly defined."""
 
-    def test_area_chart_schema(self):
-        """AreaChart requires x (Utf8) and y (NUMERIC)."""
-        schema = SCHEMAS["AreaChart"]
+    def test_multi_area_chart_schema(self):
+        """MultiAreaChart requires x (Utf8) and areas (dict with NUMERIC values)."""
+        schema = SCHEMAS["MultiAreaChart"]
         assert schema["x"] == pl.Utf8
-        assert schema["y"] == NUMERIC
-
-    def test_bar_chart_schema(self):
-        """BarChart requires x (Utf8) and y (NUMERIC)."""
-        schema = SCHEMAS["BarChart"]
-        assert schema["x"] == pl.Utf8
-        assert schema["y"] == NUMERIC
-
-    def test_dual_area_chart_schema(self):
-        """DualAreaChart requires x (Utf8), y1 (NUMERIC), y2 (NUMERIC)."""
-        schema = SCHEMAS["DualAreaChart"]
-        assert schema["x"] == pl.Utf8
-        assert schema["y1"] == NUMERIC
-        assert schema["y2"] == NUMERIC
+        assert schema["areas"] == NUMERIC
 
     def test_stacked_bar_with_line_schema(self):
         """StackedBarWithLine requires x (Utf8) and line_y (NUMERIC)."""
@@ -133,3 +120,16 @@ class TestSCHEMAS:
         schema = SCHEMAS["LineChart"]
         assert schema["x"] == pl.Utf8
         assert schema["y"] == NUMERIC
+
+    def test_multi_lines_chart_schema(self):
+        """MultiLinesChart requires x (Utf8) and lines (dict with NUMERIC values)."""
+        schema = SCHEMAS["MultiLinesChart"]
+        assert schema["x"] == pl.Utf8
+        assert schema["lines"] == NUMERIC
+
+    def test_stacked_bar_horizontal_schema(self):
+        """StackedBarHorizontalChart requires category, subcategory, value."""
+        schema = SCHEMAS["StackedBarHorizontalChart"]
+        assert schema["category"] == pl.Utf8
+        assert schema["subcategory"] == pl.Utf8
+        assert schema["value"] == NUMERIC

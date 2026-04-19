@@ -68,10 +68,9 @@ body {
 .glass-kpi-trend-up { color: #10b981; }
 .glass-kpi-trend-down { color: #e94560; }
 .glass-chart-title {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
     color: #ffffff;
-    margin-bottom: 16px;
 }
 .glass-axis-label {
     font-size: 10px;

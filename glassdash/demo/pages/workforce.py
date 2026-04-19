@@ -4,14 +4,13 @@ import polars as pl
 
 from glassdash import GlassDashboard, GlassTheme, Section
 from glassdash.components import (
-    AreaChart,
-    BarChart,
-    DualAreaChart,
+    ChartsGroup,
+    MultiAreaChart,
     MultiBarsChart,
     MultiLinesChart,
     RadialGauge,
     StackedBarChart,
-    StackedBarWithBreakdown,
+    StackedBarHorizontalChart,
     StackedBarWithLine,
 )
 
@@ -54,46 +53,53 @@ def get_workforce_data():
     )
 
 
+def get_headcount_data():
+    data = [
+        {"category": "Q1 2025", "subcategory": "Engineering", "value": 45},
+        {"category": "Q1 2025", "subcategory": "Sales", "value": 20},
+        {"category": "Q1 2025", "subcategory": "Marketing", "value": 8},
+        {"category": "Q1 2025", "subcategory": "Operations", "value": 15},
+        {"category": "Q2 2025", "subcategory": "Engineering", "value": 52},
+        {"category": "Q2 2025", "subcategory": "Sales", "value": 22},
+        {"category": "Q2 2025", "subcategory": "Marketing", "value": 9},
+        {"category": "Q2 2025", "subcategory": "Operations", "value": 16},
+        {"category": "Q3 2025", "subcategory": "Engineering", "value": 58},
+        {"category": "Q3 2025", "subcategory": "Sales", "value": 25},
+        {"category": "Q3 2025", "subcategory": "Marketing", "value": 10},
+        {"category": "Q3 2025", "subcategory": "Operations", "value": 17},
+        {"category": "Q4 2025", "subcategory": "Engineering", "value": 65},
+        {"category": "Q4 2025", "subcategory": "Sales", "value": 28},
+        {"category": "Q4 2025", "subcategory": "Marketing", "value": 12},
+        {"category": "Q4 2025", "subcategory": "Operations", "value": 18},
+    ]
+    return pl.DataFrame(data)
+
+
 def WorkforcePage(theme=None):
     if theme is None:
         theme = GlassTheme()
     df = get_workforce_data()
+    headcount_df = get_headcount_data()
     return GlassDashboard(
         title="Workforce Statistics Dashboard",
         date_range=("2024-07-01", "2025-06-13"),
         theme=theme,
         children=[
             Section(
-                "FTE Trends",
-                "Full-time equivalent over time",
-                height=600,
+                "FTE Overview",
+                "Full-time equivalent trends and composition",
+                height=1200,
                 children=[
-                    AreaChart(df, x="month", y="fte", theme=theme),
                     MultiLinesChart(
-                        df, x="month", lines={"FTE": "fte", "Target": "total_fte"}, theme=theme
+                        df, x="month", lines={"FTE": "fte"}, title="FTE Trend", theme=theme
                     ),
-                ],
-            ),
-            Section(
-                "Squad Performance",
-                "Team composition by squad",
-                height=600,
-                children=[
-                    MultiBarsChart(
+                    MultiAreaChart(
                         df,
                         x="month",
-                        bars={"Squad A": "squad_a", "Squad B": "squad_b", "Squad C": "squad_c"},
+                        areas={"FT": "fte_ft", "PT": "fte_pt", "Contingent": "fte_cont"},
+                        title="Headcount Mix",
                         theme=theme,
-                        highlight_current=False,
                     ),
-                    BarChart(df, x="month", y="squads", theme=theme),
-                ],
-            ),
-            Section(
-                "Labor Mix",
-                "Breakdown by employment type",
-                height=900,
-                children=[
                     StackedBarChart(
                         df,
                         x="month",
@@ -101,9 +107,56 @@ def WorkforcePage(theme=None):
                             "Full-time": "fte_ft",
                             "Part-time": "fte_pt",
                             "Contingent": "fte_cont",
-                            "Others": "fte_other",
                         },
+                        title="FTE Composition",
                         theme=theme,
+                    ),
+                    MultiBarsChart(
+                        df,
+                        x="month",
+                        bars={"Squad A": "squad_a", "Squad B": "squad_b", "Squad C": "squad_c"},
+                        title="Team Distribution",
+                        theme=theme,
+                        highlight_current=False,
+                    ),
+                ],
+            ),
+            Section(
+                "Performance Metrics",
+                "Team efficiency and effectiveness",
+                height=1200,
+                children=[
+                    MultiLinesChart(
+                        df,
+                        x="month",
+                        lines={"Efficiency": "efficiency", "Efficacy": "efficacy"},
+                        title="Efficiency Metrics",
+                        theme=theme,
+                    ),
+                    MultiLinesChart(
+                        df,
+                        x="month",
+                        lines={"Code Integration": "code_integration"},
+                        title="Code Integration",
+                        theme=theme,
+                    ),
+                    ChartsGroup(
+                        df,
+                        x="month",
+                        title="AI Analytics",
+                        charts=[
+                            lambda df, x, theme, id, **kwargs: MultiLinesChart(
+                                df,
+                                x=x,
+                                lines={"AI Usage": "ai_usage"},
+                                theme=theme,
+                                id=id,
+                                **kwargs,
+                            ),
+                            lambda df, x, theme, id, **kwargs: MultiBarsChart(
+                                df, x=x, bars={"AI Usage": "ai_usage"}, theme=theme, id=id, **kwargs
+                            ),
+                        ],
                     ),
                     StackedBarWithLine(
                         df,
@@ -114,46 +167,27 @@ def WorkforcePage(theme=None):
                             "Contingent": "fte_cont",
                         },
                         line_y="total_fte",
-                        theme=theme,
-                    ),
-                    StackedBarWithBreakdown(
-                        df,
-                        x="month",
-                        bar_segments={
-                            "Full-time": "fte_ft",
-                            "Part-time": "fte_pt",
-                            "Contingent": "fte_cont",
-                            "Others": "fte_other",
-                        },
-                        breakdown={
-                            "Full-time": {
-                                "Analyst": 0.3,
-                                "Engineer": 0.4,
-                                "Sales": 0.2,
-                                "Others": 0.1,
-                            },
-                            "Part-time": {"Morning": 0.5, "Afternoon": 0.5},
-                            "Contingent": {"Contractor": 0.6, "Temp": 0.4},
-                            "Others": {"External": 0.7, "Internal": 0.3},
-                        },
+                        title="FTE with Total",
                         theme=theme,
                     ),
                 ],
             ),
             Section(
-                "Efficiency Metrics",
-                "Efficiency and efficacy over time",
-                height=400,
+                "KPIs & Targets",
+                "Key performance indicators",
+                height=1200,
                 children=[
-                    DualAreaChart(df, x="month", y1="efficiency", y2="efficacy", theme=theme),
-                ],
-            ),
-            Section(
-                "Yield Gauge",
-                "Current yield performance",
-                height=400,
-                children=[
-                    RadialGauge(value=61, max_value=100, label="Yield", theme=theme),
+                    RadialGauge(value=61, max_value=100, label="Yield %", theme=theme),
+                    RadialGauge(value=90, max_value=100, label="FTE Target %", theme=theme),
+                    RadialGauge(value=87, max_value=100, label="Efficiency %", theme=theme),
+                    StackedBarHorizontalChart(
+                        headcount_df,
+                        category="category",
+                        subcategory="subcategory",
+                        value="value",
+                        title="Headcount by Department",
+                        theme=theme,
+                    ),
                 ],
             ),
         ],

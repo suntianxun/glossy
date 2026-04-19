@@ -4,9 +4,9 @@ import polars as pl
 
 from glassdash import GlassDashboard, GlassTheme, Section
 from glassdash.components import (
-    AreaChart,
-    BarChart,
-    DualAreaChart,
+    ChartsGroup,
+    MultiAreaChart,
+    MultiBarsChart,
     MultiLinesChart,
     RadialGauge,
     StackedBarChart,
@@ -173,22 +173,22 @@ def FinancePage(theme=None):
             Section(
                 "Revenue & Profit",
                 "Financial overview",
-                height=600,
+                height=1200,
                 children=[
-                    AreaChart(df, x="month", y="revenue", theme=theme),
+                    MultiLinesChart(
+                        df,
+                        x="month",
+                        lines={"Revenue": "revenue"},
+                        title="Revenue Trend",
+                        theme=theme,
+                    ),
                     MultiLinesChart(
                         df,
                         x="month",
                         lines={"Revenue": "revenue", "Expenses": "expenses", "Profit": "profit"},
+                        title="Financial Overview",
                         theme=theme,
                     ),
-                ],
-            ),
-            Section(
-                "Expense Breakdown",
-                "Cost distribution by category",
-                height=600,
-                children=[
                     StackedBarChart(
                         df,
                         x="month",
@@ -198,25 +198,98 @@ def FinancePage(theme=None):
                             "Salaries": "salaries",
                             "Infrastructure": "infrastructure",
                         },
+                        title="Expense Breakdown",
                         theme=theme,
                     ),
-                    BarChart(df, x="month", y="burn_rate", theme=theme),
+                    MultiAreaChart(
+                        df,
+                        x="month",
+                        areas={"Revenue": "revenue", "Profit": "profit"},
+                        title="Revenue vs Profit",
+                        theme=theme,
+                    ),
                 ],
             ),
             Section(
-                "Cash Flow",
-                "Cash management metrics",
-                height=400,
+                "Expense Breakdown",
+                "Cost distribution by category",
+                height=1200,
                 children=[
-                    DualAreaChart(df, x="month", y1="cash_flow", y2="burn_rate", theme=theme),
+                    ChartsGroup(
+                        df,
+                        x="month",
+                        title="Cost Analytics",
+                        charts=[
+                            lambda df, x, theme, id, **kwargs: StackedBarChart(
+                                df,
+                                x=x,
+                                segments={
+                                    "Marketing": "marketing",
+                                    "Operations": "operations",
+                                    "Salaries": "salaries",
+                                    "Infrastructure": "infrastructure",
+                                },
+                                theme=theme,
+                                id=id,
+                                **kwargs,
+                            ),
+                            lambda df, x, theme, id, **kwargs: MultiBarsChart(
+                                df,
+                                x=x,
+                                bars={
+                                    "Marketing": "marketing",
+                                    "Operations": "operations",
+                                },
+                                theme=theme,
+                                id=id,
+                                **kwargs,
+                            ),
+                        ],
+                    ),
+                    MultiAreaChart(
+                        df,
+                        x="month",
+                        areas={
+                            "Salaries": "salaries",
+                            "Operations": "operations",
+                        },
+                        title="Salaries & Operations",
+                        theme=theme,
+                    ),
+                    MultiLinesChart(
+                        df,
+                        x="month",
+                        lines={"Infrastructure": "infrastructure"},
+                        title="Infrastructure",
+                        theme=theme,
+                    ),
+                    MultiLinesChart(
+                        df,
+                        x="month",
+                        lines={
+                            "Marketing": "marketing",
+                            "Infrastructure": "infrastructure",
+                        },
+                        title="Marketing & Infra",
+                        theme=theme,
+                    ),
                 ],
             ),
             Section(
-                "Runway",
-                "Financial runway",
-                height=400,
+                "Cash Flow & Health",
+                "Cash management metrics",
+                height=1200,
                 children=[
                     RadialGauge(value=40, max_value=48, label="Runway (months)", theme=theme),
+                    RadialGauge(value=72, max_value=100, label="Burn Reduction %", theme=theme),
+                    RadialGauge(value=85, max_value=100, label="Cash Flow Health", theme=theme),
+                    MultiAreaChart(
+                        df,
+                        x="month",
+                        areas={"Cash Flow": "cash_flow", "Burn Rate": "burn_rate"},
+                        title="Cash Flow & Burn Rate",
+                        theme=theme,
+                    ),
                 ],
             ),
         ],
