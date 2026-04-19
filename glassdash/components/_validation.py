@@ -24,13 +24,10 @@ NUMERIC = _Numeric()
 
 SCHEMAS = {
     "LineChart": {"x": pl.Utf8, "y": NUMERIC},
-    "AreaChart": {"x": pl.Utf8, "y": NUMERIC},
     "MultiLinesChart": {"x": pl.Utf8},
     "MultiBarsChart": {"x": pl.Utf8},
     "StackedBarChart": {"x": pl.Utf8},
     "StackedBarWithLine": {"x": pl.Utf8, "line_y": NUMERIC},
-    "StackedBarWithBreakdown": {"x": pl.Utf8},
-    "BarChart": {"x": pl.Utf8, "y": NUMERIC},
     "DualAreaChart": {"x": pl.Utf8, "y1": NUMERIC, "y2": NUMERIC},
     "GlassCard": {},
     "KPICard": {},

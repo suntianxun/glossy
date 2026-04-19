@@ -4,9 +4,9 @@ import polars as pl
 
 from glassdash import GlassDashboard, GlassTheme, Section
 from glassdash.components import (
-    AreaChart,
-    BarChart,
-    DualAreaChart,
+    ChartsGroup,
+    MultiAreaChart,
+    MultiBarsChart,
     MultiLinesChart,
     RadialGauge,
     StackedBarChart,
@@ -134,22 +134,22 @@ def SalesPage(theme=None):
             Section(
                 "Pipeline & Revenue",
                 "Sales funnel overview",
-                height=600,
+                height=1200,
                 children=[
-                    AreaChart(df, x="month", y="pipeline_value", theme=theme),
+                    MultiLinesChart(
+                        df,
+                        x="month",
+                        lines={"Revenue": "revenue"},
+                        title="Revenue Trend",
+                        theme=theme,
+                    ),
                     MultiLinesChart(
                         df,
                         x="month",
                         lines={"Leads": "leads", "Conversions": "conversions"},
+                        title="Funnel Metrics",
                         theme=theme,
                     ),
-                ],
-            ),
-            Section(
-                "Revenue by Segment",
-                "Market segmentation",
-                height=600,
-                children=[
                     StackedBarChart(
                         df,
                         x="month",
@@ -158,25 +158,92 @@ def SalesPage(theme=None):
                             "Mid-Market": "mid_market",
                             "SMB": "smb",
                         },
+                        title="Revenue by Segment",
                         theme=theme,
                     ),
-                    BarChart(df, x="month", y="avg_deal_size", theme=theme),
+                    MultiAreaChart(
+                        df,
+                        x="month",
+                        areas={"Pipeline": "pipeline_value"},
+                        title="Pipeline Value",
+                        theme=theme,
+                    ),
+                ],
+            ),
+            Section(
+                "Revenue by Segment",
+                "Market segmentation",
+                height=1200,
+                children=[
+                    ChartsGroup(
+                        df,
+                        x="month",
+                        title="Segment Analytics",
+                        charts=[
+                            lambda df, x, theme, id, **kwargs: StackedBarChart(
+                                df,
+                                x=x,
+                                segments={
+                                    "Enterprise": "enterprise",
+                                    "Mid-Market": "mid_market",
+                                    "SMB": "smb",
+                                },
+                                theme=theme,
+                                id=id,
+                                **kwargs,
+                            ),
+                            lambda df, x, theme, id, **kwargs: MultiBarsChart(
+                                df,
+                                x=x,
+                                bars={"Avg Deal Size": "avg_deal_size"},
+                                theme=theme,
+                                id=id,
+                                **kwargs,
+                            ),
+                        ],
+                    ),
+                    MultiLinesChart(
+                        df,
+                        x="month",
+                        lines={
+                            "Enterprise": "enterprise",
+                            "Mid-Market": "mid_market",
+                            "SMB": "smb",
+                        },
+                        title="Segment Comparison",
+                        theme=theme,
+                    ),
+                    MultiLinesChart(
+                        df,
+                        x="month",
+                        lines={"Avg Deal Size": "avg_deal_size"},
+                        title="Avg Deal Size",
+                        theme=theme,
+                    ),
+                    MultiBarsChart(
+                        df,
+                        x="month",
+                        bars={"Leads": "leads", "Conversions": "conversions"},
+                        title="Leads vs Conversions",
+                        theme=theme,
+                    ),
                 ],
             ),
             Section(
                 "Performance Metrics",
                 "Key sales indicators",
-                height=400,
-                children=[
-                    DualAreaChart(df, x="month", y1="win_rate", y2="sales_cycle_days", theme=theme),
-                ],
-            ),
-            Section(
-                "Conversion Rate",
-                "Current win rate",
-                height=400,
+                height=1200,
                 children=[
                     RadialGauge(value=27.9, max_value=100, label="Win Rate %", theme=theme),
+                    RadialGauge(value=85, max_value=100, label="Conversion %", theme=theme),
+                    RadialGauge(value=32, max_value=60, label="Sales Cycle (days)", theme=theme),
+                    MultiAreaChart(
+                        df,
+                        x="month",
+                        areas={"Win Rate": "win_rate", "Sales Cycle": "sales_cycle_days"},
+                        title="Win Rate & Sales Cycle",
+                        theme=theme,
+                    ),
                 ],
             ),
         ],

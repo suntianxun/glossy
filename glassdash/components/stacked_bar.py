@@ -1,12 +1,16 @@
 """StackedBarChart - stacked proportional bar chart."""
 
-import datetime
 import uuid
 
 from dash import Input, Output, callback, dcc, html
 from plotly import graph_objects as go
 
 from glassdash.components._base import _with_validation
+from glassdash.components._chart_helpers import (
+    apply_date_filter,
+    create_popup_filter_panel,
+    parse_month_strings,
+)
 from glassdash.theme import GlassTheme
 
 
@@ -17,8 +21,11 @@ def StackedBarChart(
     segments=None,
     colors=None,
     highlight_current=True,
+    title=None,
     theme=None,
     id=None,
+    internal_wrap=True,
+    show_filter=True,
     **kwargs,
 ):
     if theme is None:
@@ -40,220 +47,29 @@ def StackedBarChart(
         }
 
     chart_id = id or f"stacked-bar-{uuid.uuid4().hex[:8]}"
-    filter_id = f"{chart_id}-filter"
-
-    x_str_all = dataframe[x].to_list()
-    x_dates_all = []
-    for s in x_str_all:
-        try:
-            parts = s.split("-")
-            d = datetime.date(int(parts[0]), int(parts[1]), 1)
-            x_dates_all.append(d)
-        except (ValueError, IndexError):
-            x_dates_all.append(datetime.date.today())
-
     segment_keys = list(segments.keys())
 
-    filter_panel = html.Div(
-        [
-            html.Div(
-                [
-                    html.Span(
-                        "Categories:",
-                        style={
-                            "color": "white",
-                            "fontSize": "11px",
-                            "marginRight": "8px",
-                        },
-                    ),
-                    dcc.Checklist(
-                        id=f"{chart_id}-categories",
-                        options=[{"label": seg, "value": seg} for seg in segment_keys],
-                        value=segment_keys,
-                        inline=True,
-                        style={"display": "inline-block"},
-                        inputStyle={"marginRight": "4px", "cursor": "pointer"},
-                        labelStyle={
-                            "color": "white",
-                            "fontSize": "11px",
-                            "marginRight": "12px",
-                            "cursor": "pointer",
-                        },
-                    ),
-                ],
-                style={"marginBottom": "8px"},
-            ),
-            html.Div(
-                [
-                    html.Span(
-                        "From:",
-                        style={
-                            "color": "white",
-                            "fontSize": "11px",
-                            "marginRight": "8px",
-                        },
-                    ),
-                    dcc.Input(
-                        id=f"{chart_id}-start-date",
-                        type="text",
-                        value=x_dates_all[0].strftime("%Y-%m-%d") if x_dates_all else "",
-                        placeholder="YYYY-MM-DD",
-                        style={
-                            "background": "rgba(255,255,255,0.1)",
-                            "border": "1px solid rgba(255,255,255,0.2)",
-                            "borderRadius": "8px",
-                            "color": "white",
-                            "fontSize": "11px",
-                            "padding": "4px 8px",
-                            "width": "100px",
-                            "marginRight": "16px",
-                        },
-                    ),
-                    html.Span(
-                        "To:",
-                        style={
-                            "color": "white",
-                            "fontSize": "11px",
-                            "marginRight": "8px",
-                        },
-                    ),
-                    dcc.Input(
-                        id=f"{chart_id}-end-date",
-                        type="text",
-                        value=x_dates_all[-1].strftime("%Y-%m-%d") if x_dates_all else "",
-                        placeholder="YYYY-MM-DD",
-                        style={
-                            "background": "rgba(255,255,255,0.1)",
-                            "border": "1px solid rgba(255,255,255,0.2)",
-                            "borderRadius": "8px",
-                            "color": "white",
-                            "fontSize": "11px",
-                            "padding": "4px 8px",
-                            "width": "100px",
-                        },
-                    ),
-                ],
-                style={"display": "flex", "alignItems": "center"},
-            ),
-        ],
-        id=filter_id,
-        className="glass-filter-panel",
-        style={"display": "none"},
-    )
+    x_dates_all = parse_month_strings(dataframe[x].to_list())
 
-    segment_keys = list(segments.keys())
-
-    filter_panel = html.Div(
-        [
-            html.Div(
-                [
-                    html.Span(
-                        "Categories:",
-                        style={
-                            "color": "white",
-                            "fontSize": "11px",
-                            "marginRight": "8px",
-                        },
-                    ),
-                    dcc.Checklist(
-                        id=f"{chart_id}-categories",
-                        options=[{"label": seg, "value": seg} for seg in segment_keys],
-                        value=segment_keys,
-                        inline=True,
-                        style={"display": "inline-block"},
-                        inputStyle={"marginRight": "4px", "cursor": "pointer"},
-                        labelStyle={
-                            "color": "white",
-                            "fontSize": "11px",
-                            "marginRight": "12px",
-                            "cursor": "pointer",
-                        },
-                    ),
-                ],
-                style={"marginBottom": "8px"},
-            ),
-            html.Div(
-                [
-                    html.Span(
-                        "From:",
-                        style={
-                            "color": "white",
-                            "fontSize": "11px",
-                            "marginRight": "8px",
-                        },
-                    ),
-                    dcc.Input(
-                        id=f"{chart_id}-start-date",
-                        type="text",
-                        value=x_dates_all[0].strftime("%Y-%m-%d") if x_dates_all else "",
-                        placeholder="YYYY-MM-DD",
-                        style={
-                            "background": "rgba(255,255,255,0.1)",
-                            "border": "1px solid rgba(255,255,255,0.2)",
-                            "borderRadius": "8px",
-                            "color": "white",
-                            "fontSize": "11px",
-                            "padding": "4px 8px",
-                            "width": "100px",
-                            "marginRight": "16px",
-                        },
-                    ),
-                    html.Span(
-                        "To:",
-                        style={
-                            "color": "white",
-                            "fontSize": "11px",
-                            "marginRight": "8px",
-                        },
-                    ),
-                    dcc.Input(
-                        id=f"{chart_id}-end-date",
-                        type="text",
-                        value=x_dates_all[-1].strftime("%Y-%m-%d") if x_dates_all else "",
-                        placeholder="YYYY-MM-DD",
-                        style={
-                            "background": "rgba(255,255,255,0.1)",
-                            "border": "1px solid rgba(255,255,255,0.2)",
-                            "borderRadius": "8px",
-                            "color": "white",
-                            "fontSize": "11px",
-                            "padding": "4px 8px",
-                            "width": "100px",
-                        },
-                    ),
-                ],
-                style={"display": "flex", "alignItems": "center"},
-            ),
-        ],
-        id=filter_id,
-        className="glass-filter-panel",
-        style={"display": "none"},
-    )
-
-    toggle_btn = html.Div(
-        html.Button(
-            "⚙ Filter",
-            id=f"{chart_id}-toggle-filter",
-            n_clicks=0,
-            style={
-                "background": "rgba(255,255,255,0.1)",
-                "border": "1px solid rgba(255,255,255,0.2)",
-                "borderRadius": "8px",
-                "color": "white",
-                "fontSize": "11px",
-                "padding": "4px 12px",
-                "cursor": "pointer",
-            },
-        )
+    toggle_btn, overlay, hidden_filter_state = create_popup_filter_panel(
+        chart_id, x_dates_all, categories=segment_keys
     )
 
     graph = dcc.Graph(
         id=chart_id,
-        style={"height": "100%"},
+        style={"height": "100%", "minHeight": "0"},
+        config={"responsive": True},
     )
 
     chart_container = html.Div(
         [
+            html.Div(
+                title,
+                className="glass-chart-title",
+                style={"display": "none" if not title else "block", "flex": "0 0 auto"},
+            )
+            if title
+            else None,
             html.Div(
                 toggle_btn,
                 style={
@@ -261,20 +77,40 @@ def StackedBarChart(
                     "marginBottom": "5px",
                     "position": "relative",
                     "zIndex": 100,
+                    "display": "none" if not show_filter else "block",
                 },
             ),
-            filter_panel,
-            html.Div(graph, className="glass-chart-container"),
-        ]
+            html.Div(
+                graph,
+                className="glass-chart-container",
+                style={"flex": "1", "minHeight": "0", "height": "100%", "overflow": "hidden"},
+            ),
+            overlay,
+        ],
+        style={
+            "display": "flex",
+            "flexDirection": "column",
+            "flex": "1",
+            "minHeight": "0",
+            "height": "100%",
+            "overflow": "hidden",
+        },
     )
 
     @callback(
-        Output(filter_id, "style"),
+        Output(overlay, "style"),
         Input(f"{chart_id}-toggle-filter", "n_clicks"),
     )
     def toggle_filter(n_clicks):
         if n_clicks % 2 == 1:
-            return {"display": "block"}
+            return {
+                "display": "block",
+                "position": "fixed",
+                "top": "50%",
+                "left": "50%",
+                "transform": "translate(-50%, -50%)",
+                "zIndex": 1000,
+            }
         return {"display": "none"}
 
     @callback(
@@ -288,36 +124,9 @@ def StackedBarChart(
             selected_categories = segment_keys
 
         selected_set = set(selected_categories)
-
-        filtered_dates = x_dates_all
-        if start_date:
-            try:
-                if isinstance(start_date, str):
-                    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
-                filtered_dates = [d for d in filtered_dates if d >= start_date]
-            except (ValueError, TypeError):
-                pass
-        if end_date:
-            try:
-                if isinstance(end_date, str):
-                    end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
-                filtered_dates = [d for d in filtered_dates if d <= end_date]
-            except (ValueError, TypeError):
-                pass
-        if end_date:
-            try:
-                if isinstance(end_date, str):
-                    end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
-                filtered_dates = [d for d in filtered_dates if d <= end_date]
-            except (ValueError, TypeError):
-                pass
-
-        if not filtered_dates:
-            filtered_dates = x_dates_all
+        filtered_dates = apply_date_filter(x_dates_all, start_date, end_date)
 
         fig = go.Figure()
-
-        len(filtered_dates) - 1
 
         for label, col in segments.items():
             if label not in selected_set:
@@ -325,11 +134,8 @@ def StackedBarChart(
 
             color_key = colors.get(label, "primary")
             bar_color = theme.colors.get(color_key, theme.colors["primary"])
-            h = bar_color.lstrip("#")
-            _r, _g, _b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
 
             y_values = dataframe[col].to_list()
-
             date_to_y = dict(zip(x_dates_all, y_values, strict=False))
 
             for date_idx, xd in enumerate(filtered_dates):
@@ -364,8 +170,9 @@ def StackedBarChart(
                 "zeroline": True,
                 "zerolinecolor": "rgba(255,255,255,0.3)",
                 "zerolinewidth": 1.5,
-                "tickangle": -45,
+                "tickangle": 0,
                 "tickformat": "%b%y",
+                "dtick": "M3",
                 "linecolor": "rgba(255,255,255,0.2)",
                 "linewidth": 1.5,
             },
@@ -398,11 +205,13 @@ def StackedBarChart(
 
         return fig
 
-    return html.Div(
-        html.Div(
-            className="glass-card",
-            style={"padding": "15px"},
-            children=[chart_container],
-        ),
-        **kwargs,
-    )
+    if internal_wrap:
+        return html.Div(
+            html.Div(
+                className="glass-card",
+                style={"padding": "15px"},
+                children=[chart_container],
+            ),
+            **kwargs,
+        )
+    return chart_container

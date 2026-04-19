@@ -12,12 +12,17 @@ from glassdash.components._chart_helpers import (
 from glassdash.theme import GlassTheme
 
 
+def hex_to_rgb(hex_color):
+    h = hex_color.lstrip("#")
+    return f"rgb({int(h[0:2], 16)},{int(h[2:4], 16)},{int(h[4:6], 16)})"
+
+
 @_with_validation
-def LineChart(
+def MultiAreaChart(
     dataframe,
     x="month",
-    y="value",
-    color="accent",
+    areas=None,
+    colors=None,
     highlight_current=True,
     title=None,
     theme=None,
@@ -29,11 +34,19 @@ def LineChart(
     if theme is None:
         theme = GlassTheme()
 
-    chart_id = id or f"line-chart-{uuid.uuid4().hex[:8]}"
+    if areas is None:
+        areas = {"Area 1": "value1", "Area 2": "value2"}
+    if colors is None:
+        colors = ["accent", "purple", "cyan", "success", "warning"]
+
+    chart_id = id or f"multi-area-{uuid.uuid4().hex[:8]}"
+    area_keys = list(areas.keys())
 
     x_dates_all = parse_month_strings(dataframe[x].to_list())
 
-    toggle_btn, overlay, hidden_filter_state = create_popup_filter_panel(chart_id, x_dates_all)
+    toggle_btn, overlay, hidden_filter_state = create_popup_filter_panel(
+        chart_id, x_dates_all, categories=area_keys
+    )
 
     graph = dcc.Graph(
         id=chart_id,
@@ -95,99 +108,46 @@ def LineChart(
 
     @callback(
         Output(chart_id, "figure"),
+        Input(f"{chart_id}-categories", "value"),
         Input(f"{chart_id}-start-date", "value"),
         Input(f"{chart_id}-end-date", "value"),
     )
-    def update_chart(start_date, end_date):
+    def update_chart(selected_areas, start_date, end_date):
+        if not selected_areas:
+            selected_areas = area_keys
+
+        selected_set = set(selected_areas)
         filtered_dates = apply_date_filter(x_dates_all, start_date, end_date)
-
-        line_color = theme.colors.get(color, theme.colors["accent"])
-        highlight_color = theme.colors["accent"]
-
-        y_all = dataframe[y].to_list()
-        date_to_y = dict(zip(x_dates_all, y_all, strict=False))
 
         fig = go.Figure()
 
-        filtered_y = [date_to_y.get(d, 0) for d in filtered_dates]
+        area_colors = [
+            theme.colors.get(colors[i % len(colors)], theme.colors["accent"])
+            for i in range(len(areas))
+        ]
 
-        # Past data (all except latest) with 0.7 opacity
-        if len(filtered_dates) > 1:
+        for i, (label, col) in enumerate(areas.items()):
+            if label not in selected_set:
+                continue
+
+            color = area_colors[i]
+            rgb = hex_to_rgb(color)
+
+            y_all = dataframe[col].to_list()
+            date_to_y = dict(zip(x_dates_all, y_all, strict=False))
+            filtered_y = [date_to_y.get(d, 0) for d in filtered_dates]
+
             fig.add_trace(
                 go.Scatter(
-                    x=filtered_dates[:-1],
-                    y=filtered_y[:-1],
-                    mode="lines",
-                    line={"color": line_color, "width": 2.5},
-                    opacity=0.7,
-                    hovertemplate=f"{y}: %{{y:.1f}}<extra></extra>",
+                    x=filtered_dates + filtered_dates[::-1],
+                    y=filtered_y + [0] * len(filtered_y),
+                    fill="toself",
+                    fillcolor=f"rgba({rgb[4:-1]},0.35)",
+                    line={"color": color, "width": 2},
+                    name=label,
+                    hovertemplate=f"{label}: %{{y:.1f}}<extra></extra>",
                 )
             )
-
-        # Latest data point at full opacity with glossy frame
-        fig.add_trace(
-            go.Scatter(
-                x=[filtered_dates[-1]],
-                y=[filtered_y[-1]],
-                mode="lines",
-                line={"color": line_color, "width": 2.5},
-                opacity=1.0,
-                hovertemplate=f"{y}: %{{y:.1f}}<extra></extra>",
-            )
-        )
-
-        if highlight_current and len(filtered_dates) > 0:
-            # Outer glow for glossy effect
-            fig.add_trace(
-                go.Scatter(
-                    x=[filtered_dates[-1]],
-                    y=[filtered_y[-1]],
-                    mode="markers",
-                    marker={
-                        "color": "rgba(255,255,255,0.25)",
-                        "size": 22,
-                    },
-                    hovertemplate=" ",
-                )
-            )
-            # Inner glow
-            fig.add_trace(
-                go.Scatter(
-                    x=[filtered_dates[-1]],
-                    y=[filtered_y[-1]],
-                    mode="markers",
-                    marker={
-                        "color": "rgba(255,255,255,0.4)",
-                        "size": 16,
-                    },
-                    hovertemplate=" ",
-                )
-            )
-            # Glossy frame ring
-            fig.add_trace(
-                go.Scatter(
-                    x=[filtered_dates[-1]],
-                    y=[filtered_y[-1]],
-                    mode="markers",
-                    marker={
-                        "color": highlight_color,
-                        "size": 12,
-                        "line": {"width": 2.5, "color": "rgba(255,255,255,0.8)"},
-                    },
-                    hovertemplate=f"{y}: {filtered_y[-1]:.1f}<extra>Current</extra>",
-                )
-            )
-
-        # Glossy effect - subtle shine at top
-        fig.add_trace(
-            go.Scatter(
-                x=filtered_dates,
-                y=[max(filtered_y) * 1.1] * len(filtered_dates),
-                mode="lines",
-                line={"color": "rgba(255,255,255,0.08)", "width": 1},
-                hoverinfo="skip",
-            )
-        )
 
         fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
@@ -197,7 +157,7 @@ def LineChart(
                 "size": theme.fonts["axis_label"],
                 "color": theme.colors["text_muted"],
             },
-            margin={"l": 20, "r": 20, "t": 30, "b": 40},
+            margin={"l": 20, "r": 20, "t": 20, "b": 40},
             xaxis={
                 "showgrid": False,
                 "zeroline": True,
@@ -216,6 +176,14 @@ def LineChart(
                 "zerolinewidth": 1.5,
                 "linecolor": "rgba(255,255,255,0.2)",
                 "linewidth": 1.5,
+            },
+            legend={
+                "orientation": "h",
+                "yanchor": "bottom",
+                "y": 1.02,
+                "xanchor": "center",
+                "x": 0.5,
+                "font": {"size": 10},
             },
             hovermode="x unified",
             hoverlabel={

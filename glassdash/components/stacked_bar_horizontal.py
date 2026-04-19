@@ -1,30 +1,21 @@
-"""StackedBarWithLine - stacked bar + dashed line on secondary y-axis."""
-
 import uuid
 
+import polars as pl
 from dash import Input, Output, callback, dcc, html
 from plotly import graph_objects as go
 
 from glassdash.components._base import _with_validation
-from glassdash.components._chart_helpers import (
-    apply_date_filter,
-    create_popup_filter_panel,
-    parse_month_strings,
-)
 from glassdash.theme import GlassTheme
 
 
 @_with_validation
-def StackedBarWithLine(
+def StackedBarHorizontalChart(
     dataframe,
-    x="month",
-    bar_segments=None,
-    colors=None,
-    line_y="total",
-    line_color="accent",
-    line_dash="dash",
-    highlight_current=True,
+    category="category",
+    subcategory="subcategory",
+    value="value",
     title=None,
+    colors=None,
     theme=None,
     id=None,
     internal_wrap=True,
@@ -34,28 +25,84 @@ def StackedBarWithLine(
     if theme is None:
         theme = GlassTheme()
 
-    if bar_segments is None:
-        bar_segments = {
-            "Full-time": "fte_ft",
-            "Part-time": "fte_pt",
-            "Contingent": "fte_cont",
-        }
     if colors is None:
-        colors = {
-            "Full-time": "dark_yellow",
-            "Part-time": "accent",
-            "Contingent": "purple",
-        }
+        colors = ["primary", "accent", "purple", "cyan", "dark_yellow", "success"]
 
-    chart_id = id or f"stacked-bar-line-{uuid.uuid4().hex[:8]}"
+    chart_id = id or f"stacked-bar-h-{uuid.uuid4().hex[:8]}"
 
-    x_dates_all = parse_month_strings(dataframe[x].to_list())
-    y_line_all = dataframe[line_y].to_list()
-    line_color_value = theme.colors.get(line_color, theme.colors["accent"])
-    segment_keys = list(bar_segments.keys())
+    all_categories = dataframe[category].unique().to_list()
+    all_subcategories = dataframe[subcategory].unique().to_list()
 
-    toggle_btn, overlay, hidden_filter_state = create_popup_filter_panel(
-        chart_id, x_dates_all, categories=segment_keys
+    toggle_btn = html.Button(
+        "⚙ Filter",
+        id=f"{chart_id}-toggle-filter",
+        n_clicks=0,
+        style={
+            "background": "rgba(255,255,255,0.1)",
+            "border": "1px solid rgba(255,255,255,0.2)",
+            "borderRadius": "4px",
+            "color": "white",
+            "cursor": "pointer",
+            "padding": "4px 12px",
+            "fontSize": "12px",
+        },
+    )
+
+    popup_content = html.Div(
+        [
+            html.Div(
+                "Filter",
+                style={
+                    "color": "white",
+                    "fontSize": "14px",
+                    "fontWeight": "bold",
+                    "marginBottom": "12px",
+                },
+            ),
+            html.Div(
+                [
+                    html.Span(
+                        "Categories:",
+                        style={"color": "white", "fontSize": "11px", "marginRight": "8px"},
+                    ),
+                    dcc.Checklist(
+                        id=f"{chart_id}-categories",
+                        options=[{"label": cat, "value": cat} for cat in all_categories],
+                        value=all_categories,
+                        inline=True,
+                        style={"display": "inline-block"},
+                        inputStyle={"marginRight": "4px", "cursor": "pointer"},
+                        labelStyle={
+                            "color": "white",
+                            "fontSize": "11px",
+                            "marginRight": "12px",
+                            "cursor": "pointer",
+                        },
+                    ),
+                ],
+                style={"marginBottom": "8px"},
+            ),
+        ],
+        style={
+            "background": "rgba(30,30,50,0.95)",
+            "border": "1px solid rgba(255,255,255,0.2)",
+            "borderRadius": "12px",
+            "padding": "16px",
+            "minWidth": "280px",
+        },
+    )
+
+    overlay = html.Div(
+        popup_content,
+        id=f"{chart_id}-filter-overlay",
+        style={
+            "display": "none",
+            "position": "fixed",
+            "top": "50%",
+            "left": "50%",
+            "transform": "translate(-50%, -50%)",
+            "zIndex": 1000,
+        },
     )
 
     graph = dcc.Graph(
@@ -119,63 +166,45 @@ def StackedBarWithLine(
     @callback(
         Output(chart_id, "figure"),
         Input(f"{chart_id}-categories", "value"),
-        Input(f"{chart_id}-start-date", "value"),
-        Input(f"{chart_id}-end-date", "value"),
     )
-    def update_chart(selected_categories, start_date, end_date):
+    def update_chart(selected_categories):
         if not selected_categories:
-            selected_categories = segment_keys
+            selected_categories = all_categories
 
         selected_set = set(selected_categories)
-        filtered_dates = apply_date_filter(x_dates_all, start_date, end_date)
+
+        filtered_df = dataframe.filter(pl.col(category).is_in(selected_set))
 
         fig = go.Figure()
 
-        for label, col in bar_segments.items():
-            if label not in selected_set:
-                continue
+        for i, subcat in enumerate(all_subcategories):
+            subcat_color = theme.colors.get(colors[i % len(colors)], theme.colors["primary"])
 
-            color_key = colors.get(label, "primary")
-            bar_color = theme.colors.get(color_key, theme.colors["primary"])
-            h = bar_color.lstrip("#")
-            _r, _g, _b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+            for cat in selected_categories:
+                cat_data = filtered_df.filter(
+                    (pl.col(category) == cat) & (pl.col(subcategory) == subcat)
+                )
 
-            y_values = dataframe[col].to_list()
-            date_to_y = dict(zip(x_dates_all, y_values, strict=False))
+                if cat_data.is_empty():
+                    continue
 
-            for date_idx, xd in enumerate(filtered_dates):
-                yv = date_to_y.get(xd, 0)
+                val = cat_data[value].to_list()[0]
 
                 fig.add_trace(
                     go.Bar(
-                        x=[xd],
-                        y=[yv],
-                        name=label if date_idx == 0 else None,
+                        x=[val],
+                        y=[cat],
+                        orientation="h",
+                        name=subcat,
                         marker={
-                            "color": bar_color,
+                            "color": subcat_color,
                             "line": {"width": 0},
                             "cornerradius": 4,
                         },
-                        hovertemplate=f"<b>{label}</b><br>Value: {yv}<extra></extra>",
-                        showlegend=(date_idx == 0),
+                        hovertemplate=f"<b>{subcat}</b><br>Value: {val}<extra></extra>",
+                        showlegend=(cat == selected_categories[0]),
                     )
                 )
-
-        date_to_line_y = dict(zip(x_dates_all, y_line_all, strict=False))
-        filtered_line_y = [date_to_line_y.get(d, 0) for d in filtered_dates]
-
-        fig.add_trace(
-            go.Scatter(
-                x=filtered_dates,
-                y=filtered_line_y,
-                mode="lines+markers",
-                name=line_y,
-                line={"color": line_color_value, "width": 2.5, "dash": line_dash},
-                marker={"size": 8, "color": line_color_value},
-                yaxis="y2",
-                hovertemplate=f"<b>{line_y}</b><br>%{{y:.1f}}<extra></extra>",
-            )
-        )
 
         fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
@@ -185,48 +214,34 @@ def StackedBarWithLine(
                 "size": theme.fonts["axis_label"],
                 "color": theme.colors["text_muted"],
             },
-            margin={"l": 20, "r": 50, "t": 20, "b": 40},
+            margin={"l": 20, "r": 20, "t": 20, "b": 40},
             xaxis={
                 "showgrid": False,
                 "zeroline": True,
                 "zerolinecolor": "rgba(255,255,255,0.3)",
                 "zerolinewidth": 1.5,
                 "tickangle": 0,
-                "tickformat": "%b%y",
-                "dtick": "M3",
                 "linecolor": "rgba(255,255,255,0.2)",
                 "linewidth": 1.5,
             },
             yaxis={
                 "showgrid": False,
-                "zeroline": True,
-                "zerolinecolor": "rgba(255,255,255,0.3)",
-                "zerolinewidth": 1.5,
-                "side": "left",
+                "zeroline": False,
                 "linecolor": "rgba(255,255,255,0.2)",
                 "linewidth": 1.5,
-            },
-            yaxis2={
-                "showgrid": False,
-                "zeroline": True,
-                "zerolinecolor": "rgba(255,255,255,0.3)",
-                "zerolinewidth": 1.5,
-                "side": "right",
-                "overlaying": "y",
-                "tickfont": {"color": line_color_value},
-                "linecolor": "rgba(255,255,255,0.2)",
-                "linewidth": 1.5,
+                "categoryorder": "array",
+                "categoryarray": selected_categories,
             },
             legend={
                 "orientation": "h",
                 "yanchor": "bottom",
-                "y": 1.08,
+                "y": 1.02,
                 "xanchor": "center",
                 "x": 0.5,
                 "font": {"size": 10},
             },
             barmode="stack",
-            hovermode="x unified",
+            hovermode="y unified",
             showlegend=True,
             hoverlabel={
                 "bgcolor": "rgba(20,20,40,0.85)",
