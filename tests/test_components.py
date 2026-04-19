@@ -5,17 +5,16 @@ import pytest
 
 from glassdash import GlassTheme
 from glassdash.components import (
-    AreaChart,
-    BarChart,
-    DualAreaChart,
+    ChartsGroup,
     GlassCard,
     KPICard,
     LineChart,
+    MultiAreaChart,
     MultiBarsChart,
     MultiLinesChart,
     RadialGauge,
     StackedBarChart,
-    StackedBarWithBreakdown,
+    StackedBarHorizontalChart,
     StackedBarWithLine,
 )
 
@@ -45,6 +44,18 @@ def sample_df():
             "squad_a": [4, 4, 5],
             "squad_b": [3, 4, 4],
             "squad_c": [3, 3, 4],
+        }
+    )
+
+
+@pytest.fixture
+def sample_headcount_df():
+    """Create sample headcount DataFrame for horizontal bar tests."""
+    return pl.DataFrame(
+        {
+            "category": ["Q1 2025", "Q1 2025", "Q2 2025", "Q2 2025"],
+            "subcategory": ["Engineering", "Sales", "Engineering", "Sales"],
+            "value": [45, 20, 52, 22],
         }
     )
 
@@ -79,24 +90,20 @@ class TestKPICard:
         assert result is not None
 
 
-class TestAreaChart:
-    """Test AreaChart component."""
+class TestMultiAreaChart:
+    """Test MultiAreaChart component."""
 
-    def test_area_chart_renders(self, theme, sample_df):
-        """AreaChart should render without validation errors."""
-        result = AreaChart(sample_df, x="month", y="fte", theme=theme)
+    def test_multi_area_chart_renders(self, theme, sample_df):
+        """MultiAreaChart should render without validation errors."""
+        result = MultiAreaChart(
+            sample_df, x="month", areas={"FTE": "fte", "Total": "total_fte"}, theme=theme
+        )
         assert result is not None
         assert "error" not in type(result).__name__.lower()
 
-    def test_area_chart_with_int_column(self, theme, sample_df):
-        """AreaChart should accept integer columns (NUMERIC type)."""
-        result = AreaChart(sample_df, x="month", y="squads", theme=theme)
-        assert result is not None
-        assert "error" not in type(result).__name__.lower()
-
-    def test_area_chart_with_float_column(self, theme, sample_df):
-        """AreaChart should accept float columns."""
-        result = AreaChart(sample_df, x="month", y="fte", theme=theme)
+    def test_multi_area_chart_with_int_column(self, theme, sample_df):
+        """MultiAreaChart should accept integer columns."""
+        result = MultiAreaChart(sample_df, x="month", areas={"Squads": "squads"}, theme=theme)
         assert result is not None
         assert "error" not in type(result).__name__.lower()
 
@@ -110,37 +117,10 @@ class TestLineChart:
         assert result is not None
         assert "error" not in type(result).__name__.lower()
 
-
-class TestBarChart:
-    """Test BarChart component."""
-
-    def test_bar_chart_renders(self, theme, sample_df):
-        """BarChart should render without validation errors."""
-        result = BarChart(sample_df, x="month", y="squads", theme=theme)
+    def test_line_chart_with_title(self, theme, sample_df):
+        """LineChart should accept title parameter."""
+        result = LineChart(sample_df, x="month", y="fte", title="FTE Trend", theme=theme)
         assert result is not None
-        assert "error" not in type(result).__name__.lower()
-
-    def test_bar_chart_with_float_column(self, theme, sample_df):
-        """BarChart should accept float columns."""
-        result = BarChart(sample_df, x="month", y="fte", theme=theme)
-        assert result is not None
-        assert "error" not in type(result).__name__.lower()
-
-
-class TestDualAreaChart:
-    """Test DualAreaChart component."""
-
-    def test_dual_area_chart_renders(self, theme, sample_df):
-        """DualAreaChart should render without validation errors."""
-        result = DualAreaChart(sample_df, x="month", y1="efficiency", y2="efficacy", theme=theme)
-        assert result is not None
-        assert "error" not in type(result).__name__.lower()
-
-    def test_dual_area_chart_with_int_columns(self, theme, sample_df):
-        """DualAreaChart should accept integer columns."""
-        result = DualAreaChart(sample_df, x="month", y1="efficiency", y2="squads", theme=theme)
-        assert result is not None
-        assert "error" not in type(result).__name__.lower()
 
 
 class TestMultiLinesChart:
@@ -211,26 +191,67 @@ class TestStackedBarWithLine:
         assert "error" not in type(result).__name__.lower()
 
 
-class TestStackedBarWithBreakdown:
-    """Test StackedBarWithBreakdown component."""
+class TestStackedBarHorizontalChart:
+    """Test StackedBarHorizontalChart component."""
 
-    def test_stacked_bar_with_breakdown_renders(self, theme, sample_df):
-        """StackedBarWithBreakdown should render without validation errors."""
-        result = StackedBarWithBreakdown(
-            sample_df,
-            x="month",
-            bar_segments={
-                "Full-time": "fte_ft",
-                "Part-time": "fte_pt",
-            },
-            breakdown={
-                "Full-time": {"Engineer": 0.6, "Analyst": 0.4},
-                "Part-time": {"Morning": 0.5, "Afternoon": 0.5},
-            },
+    def test_stacked_bar_horizontal_renders(self, theme, sample_headcount_df):
+        """StackedBarHorizontalChart should render without errors."""
+        result = StackedBarHorizontalChart(
+            sample_headcount_df,
+            category="category",
+            subcategory="subcategory",
+            value="value",
             theme=theme,
         )
         assert result is not None
-        assert "error" not in type(result).__name__.lower()
+
+    def test_stacked_bar_horizontal_with_title(self, theme, sample_headcount_df):
+        """StackedBarHorizontalChart should accept title parameter."""
+        result = StackedBarHorizontalChart(
+            sample_headcount_df,
+            category="category",
+            subcategory="subcategory",
+            value="value",
+            title="Headcount by Department",
+            theme=theme,
+        )
+        assert result is not None
+
+
+class TestChartsGroup:
+    """Test ChartsGroup component."""
+
+    def test_charts_group_renders(self, theme, sample_df):
+        """ChartsGroup should render without errors."""
+        result = ChartsGroup(
+            sample_df,
+            x="month",
+            charts=[
+                lambda df, x, theme, id, **kwargs: LineChart(
+                    df, x=x, y="fte", theme=theme, id=id, **kwargs
+                ),
+                lambda df, x, theme, id, **kwargs: MultiBarsChart(
+                    df, x=x, bars={"Squad A": "squad_a"}, theme=theme, id=id, **kwargs
+                ),
+            ],
+            theme=theme,
+        )
+        assert result is not None
+
+    def test_charts_group_with_title(self, theme, sample_df):
+        """ChartsGroup should accept title parameter."""
+        result = ChartsGroup(
+            sample_df,
+            x="month",
+            title="Team Metrics",
+            charts=[
+                lambda df, x, theme, id, **kwargs: LineChart(
+                    df, x=x, y="fte", theme=theme, id=id, **kwargs
+                ),
+            ],
+            theme=theme,
+        )
+        assert result is not None
 
 
 class TestRadialGauge:
