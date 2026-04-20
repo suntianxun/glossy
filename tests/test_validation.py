@@ -4,6 +4,7 @@ import polars as pl
 import pytest
 
 from glassdash.components._validation import (
+    DICT_NUMERIC,
     NUMERIC,
     SCHEMAS,
     _is_compatible_type,
@@ -104,10 +105,10 @@ class TestSCHEMAS:
     """Test that SCHEMAS are correctly defined."""
 
     def test_multi_area_chart_schema(self):
-        """MultiAreaChart requires x (Utf8) and areas (dict with NUMERIC values)."""
+        """MultiAreaChart requires x (Utf8) and areas (dict with DICT_NUMERIC values)."""
         schema = SCHEMAS["MultiAreaChart"]
         assert schema["x"] == pl.Utf8
-        assert schema["areas"] == NUMERIC
+        assert schema["areas"] == DICT_NUMERIC
 
     def test_stacked_bar_with_line_schema(self):
         """StackedBarWithLine requires x (Utf8) and line_y (NUMERIC)."""
@@ -122,10 +123,10 @@ class TestSCHEMAS:
         assert schema["y"] == NUMERIC
 
     def test_multi_lines_chart_schema(self):
-        """MultiLinesChart requires x (Utf8) and lines (dict with NUMERIC values)."""
+        """MultiLinesChart requires x (Utf8) and lines (dict with DICT_NUMERIC values)."""
         schema = SCHEMAS["MultiLinesChart"]
         assert schema["x"] == pl.Utf8
-        assert schema["lines"] == NUMERIC
+        assert schema["lines"] == DICT_NUMERIC
 
     def test_stacked_bar_horizontal_schema(self):
         """StackedBarHorizontalChart requires category, subcategory, value."""
