@@ -1,5 +1,7 @@
 """Validation for GlassDash chart components."""
 
+from typing import Any
+
 import polars as pl
 from dash import html
 
@@ -20,13 +22,20 @@ class _Numeric:
     pass
 
 
+class _DictNumeric:
+    """Marker: parameter is a dict mapping labels → numeric column names."""
+
+    pass
+
+
 NUMERIC = _Numeric()
+DICT_NUMERIC = _DictNumeric()
 
 SCHEMAS = {
     "LineChart": {"x": pl.Utf8, "y": NUMERIC},
-    "MultiLinesChart": {"x": pl.Utf8, "lines": NUMERIC},
-    "MultiBarsChart": {"x": pl.Utf8, "bars": NUMERIC},
-    "MultiAreaChart": {"x": pl.Utf8, "areas": NUMERIC},
+    "MultiLinesChart": {"x": pl.Utf8, "lines": DICT_NUMERIC},
+    "MultiBarsChart": {"x": pl.Utf8, "bars": DICT_NUMERIC},
+    "MultiAreaChart": {"x": pl.Utf8, "areas": DICT_NUMERIC},
     "StackedBarChart": {"x": pl.Utf8},
     "StackedBarWithLine": {"x": pl.Utf8, "line_y": NUMERIC},
     "StackedBarHorizontalChart": {"category": pl.Utf8, "subcategory": pl.Utf8, "value": NUMERIC},
@@ -40,12 +49,30 @@ def validate_dataframe(
     df: pl.DataFrame,
     schema: dict[str, type],
     column_mapping: dict[str, str] | None = None,
+    arg_values: dict[str, Any] | None = None,
 ) -> tuple[bool, list[str]]:
     """Validate DataFrame against schema. Returns (is_valid, errors)."""
     errors = []
     column_mapping = column_mapping or {}
+    arg_values = arg_values or {}
 
     for key, expected_type in schema.items():
+        if isinstance(expected_type, _DictNumeric):
+            val = arg_values.get(key)
+            if val is None:
+                continue
+            if not isinstance(val, dict):
+                errors.append(f"'{key}' - expected dict, got {type(val).__name__}")
+                continue
+            for label, col in val.items():
+                if col not in df.columns:
+                    errors.append(f"'{key}[\"{label}\"]' column '{col}' - missing")
+                elif not _is_compatible_type(df[col].dtype, NUMERIC):
+                    errors.append(
+                        f"'{key}[\"{label}\"]' column '{col}' - not numeric (got {df[col].dtype})"
+                    )
+            continue
+
         actual_col = column_mapping.get(key, key)
         if actual_col not in df.columns:
             errors.append(f"'{key}' - missing")
