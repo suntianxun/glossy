@@ -12,6 +12,9 @@ Charts display error cards with messages like:
 - `'x' - expected Float64, got Int64`
 - `'y1' - expected Float64, got Int64`
 - `'line_y' - expected String, got Int64`
+- `'lines' - missing` (MultiLinesChart with dict param)
+- `'bars' - missing` (MultiBarsChart with dict param)
+- `'areas' - missing` (MultiAreaChart with dict param)
 
 ## Root Causes
 
@@ -72,6 +75,34 @@ SCHEMAS = {
 }
 ```
 
+### 4. Dict Parameter Treated as Column Name (MultiLinesChart / MultiBarsChart / MultiAreaChart)
+
+`lines`, `bars`, and `areas` are **dict parameters** (`{"Label": "col_name"}`), not column names. If the schema marks them as `NUMERIC`, the validator looks for a column literally named `"lines"` — which never exists.
+
+**Fix location**: `glassdash/components/_validation.py`
+
+Use `DICT_NUMERIC` for these parameters:
+```python
+class _DictNumeric:
+    """Marker: parameter is a dict mapping labels → numeric column names."""
+    pass
+
+DICT_NUMERIC = _DictNumeric()
+
+SCHEMAS = {
+    "MultiLinesChart": {"x": pl.Utf8, "lines": DICT_NUMERIC},
+    "MultiBarsChart":  {"x": pl.Utf8, "bars":  DICT_NUMERIC},
+    "MultiAreaChart":  {"x": pl.Utf8, "areas": DICT_NUMERIC},
+}
+```
+
+`validate_dataframe` must also receive `arg_values` from `_base.py` so it can inspect the dict contents:
+```python
+is_valid, errors = validate_dataframe(
+    dataframe, schema, column_mapping, arg_values=dict(bound.arguments)
+)
+```
+
 ## Validation Flow
 
 ```
@@ -123,3 +154,6 @@ print(f"Valid: {is_valid}, Errors: {errors}")
 | `'y' - expected Float64, got Int64` | Schema too strict | Use `NUMERIC` instead of `pl.Float64` |
 | `'line_y' - expected String, got Int64` | Schema wrong type | `line_y` is a column, should be `NUMERIC` |
 | Type errors after fix | `pl.Utf8 != str` | Compare Polars dtypes directly |
+| `'lines' - missing` | Dict param treated as column name | Use `DICT_NUMERIC` in schema + pass `arg_values` |
+| `'bars' - missing` | Dict param treated as column name | Use `DICT_NUMERIC` in schema + pass `arg_values` |
+| `'areas' - missing` | Dict param treated as column name | Use `DICT_NUMERIC` in schema + pass `arg_values` |

@@ -34,7 +34,9 @@ def _with_validation(chart_func):
                     if isinstance(val, str):
                         column_mapping[key] = val
 
-            is_valid, errors = validate_dataframe(dataframe, schema, column_mapping)
+            is_valid, errors = validate_dataframe(
+                dataframe, schema, column_mapping, arg_values=dict(bound.arguments)
+            )
             if not is_valid:
                 return _render_error_card(chart_func.__name__, errors, dataframe.columns)
 
